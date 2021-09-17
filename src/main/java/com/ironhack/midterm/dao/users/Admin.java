@@ -10,13 +10,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
+import java.util.HashSet;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
-public class Admin extends Role {
+public class Admin extends User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,5 +28,10 @@ public class Admin extends Role {
     @Override
     public Long getId() {
         return this.id;
+    }
+
+    public Admin(String username, String password, Role role, String name) {
+        super(username, password, new HashSet<>(Arrays.asList(role)));
+        this.name = name;
     }
 }

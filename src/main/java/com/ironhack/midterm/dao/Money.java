@@ -1,7 +1,5 @@
 package com.ironhack.midterm.dao;
 
-import lombok.Getter;
-
 import javax.persistence.Embeddable;
 import java.math.RoundingMode;
 import java.math.BigDecimal;

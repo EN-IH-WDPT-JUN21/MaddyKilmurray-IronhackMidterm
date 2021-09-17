@@ -9,14 +9,12 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.*;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
-public class AccountHolder extends Role {
+public class AccountHolder extends User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,5 +38,13 @@ public class AccountHolder extends Role {
     @Override
     public Long getId() {
         return this.id;
+    }
+
+    public AccountHolder(String username, String password, Role role, String name, LocalDate dateOfBirth, Address primaryAddress, Address mailingAddress) {
+        super(username, password, new HashSet<>(Arrays.asList(role)));
+        this.name = name;
+        this.dateOfBirth = dateOfBirth;
+        this.primaryAddress = primaryAddress;
+        this.mailingAddress = mailingAddress;
     }
 }
