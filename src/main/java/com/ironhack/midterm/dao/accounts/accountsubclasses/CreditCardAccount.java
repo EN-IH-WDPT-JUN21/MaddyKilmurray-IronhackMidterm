@@ -22,9 +22,7 @@ import java.time.LocalDate;
 @Entity
 public class CreditCardAccount extends Account {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private static final String accountType = "Credit Card Account";
 
     @NotNull
     @Column(name = "credit_limit")

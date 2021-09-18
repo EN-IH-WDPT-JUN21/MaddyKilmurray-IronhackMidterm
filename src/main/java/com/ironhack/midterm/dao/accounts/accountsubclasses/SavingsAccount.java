@@ -14,9 +14,7 @@ import java.time.LocalDate;
 @Entity
 public class SavingsAccount extends Account {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private static final String accountType = "Savings Account";
 
     @NotBlank
     @Column(name = "secret_key")

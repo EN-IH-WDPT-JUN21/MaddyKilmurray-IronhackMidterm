@@ -22,9 +22,7 @@ import java.time.LocalDate;
 @Entity
 public class CheckingAccount extends Account {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private static final String accountType = "Checking Account";
 
     @NotBlank
     @Column(name = "secret_key")

@@ -11,6 +11,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Getter
@@ -31,10 +32,30 @@ public class AccountHolder extends User {
 
     @NotNull
     @Column(name = "primary_address")
+    @AttributeOverrides({
+            @AttributeOverride( name = "houseNumber", column = @Column(name = "primary_house_number")),
+            @AttributeOverride( name = "firstLineOfAddress", column = @Column(name = "primary_first_line_of_address")),
+            @AttributeOverride( name = "secondLineOfAddress", column = @Column(name = "primary_second_line_of_address")),
+            @AttributeOverride( name = "thirdLineOfAddress", column = @Column(name = "primary_third_line_of_address")),
+            @AttributeOverride( name = "city", column = @Column(name = "primary_city")),
+            @AttributeOverride( name = "county", column = @Column(name = "primary_county")),
+            @AttributeOverride( name = "country", column = @Column(name = "primary_country")),
+            @AttributeOverride( name = "postcode", column = @Column(name = "primary_postcode"))
+    })
     private Address primaryAddress;
 
     @Column(name = "mailing_address")
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride( name = "houseNumber", column = @Column(name = "mailing_house_number")),
+            @AttributeOverride( name = "firstLineOfAddress", column = @Column(name = "mailing_first_line_of_address")),
+            @AttributeOverride( name = "secondLineOfAddress", column = @Column(name = "mailing_second_line_of_address")),
+            @AttributeOverride( name = "thirdLineOfAddress", column = @Column(name = "mailing_third_line_of_address")),
+            @AttributeOverride( name = "city", column = @Column(name = "mailing_city")),
+            @AttributeOverride( name = "county", column = @Column(name = "mailing_county")),
+            @AttributeOverride( name = "country", column = @Column(name = "mailing_country")),
+            @AttributeOverride( name = "postcode", column = @Column(name = "mailing_postcode"))
+    })
     private Address mailingAddress;
 
     @Override
@@ -48,5 +69,12 @@ public class AccountHolder extends User {
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = primaryAddress;
         this.mailingAddress = mailingAddress;
+    }
+
+    public Boolean isUnder24() {
+        LocalDate today = LocalDate.now();
+        LocalDate flagValue
+                = today.minus(24, ChronoUnit.YEARS);
+        return this.getDateOfBirth().isAfter(flagValue);
     }
 }

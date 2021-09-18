@@ -21,9 +21,7 @@ import java.time.LocalDate;
 @Entity
 public class StudentCheckingAccount extends Account {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private static final String accountType = "Student Checking Account";
 
     @NotBlank
     @Column(name = "secret_key")
