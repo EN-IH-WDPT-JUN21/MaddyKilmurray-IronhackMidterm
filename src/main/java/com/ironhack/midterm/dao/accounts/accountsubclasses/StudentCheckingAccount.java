@@ -1,7 +1,8 @@
-package com.ironhack.midterm.dao.accounts;
+package com.ironhack.midterm.dao.accounts.accountsubclasses;
 
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.dao.users.AccountHolder;
+import com.ironhack.midterm.dao.accounts.Account;
+import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,11 +11,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Currency;
-import java.util.Optional;
 
 @Getter
 @Setter

@@ -1,4 +1,4 @@
 package com.ironhack.midterm.controller.interfaces;
 
-public interface ISavingsAccountController {
+public interface IAccountController {
 }

@@ -1,7 +1,7 @@
 package com.ironhack.midterm.dao.accounts;
 
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.dao.users.AccountHolder;
+import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

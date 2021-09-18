@@ -1,12 +1,9 @@
-package com.ironhack.midterm.dao.accounts;
+package com.ironhack.midterm.dao.accounts.accountsubclasses;
 
-import com.ironhack.midterm.dao.users.AccountHolder;
 import com.ironhack.midterm.dao.Money;
+import com.ironhack.midterm.dao.accounts.Account;
+import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.enums.Status;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -14,12 +11,8 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
-public class CheckingAccount extends Account {
+public class SavingsAccount extends Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,27 +31,27 @@ public class CheckingAccount extends Account {
     })
     private Money minimumBalance;
 
-    @Column(name = "monthly_maintenance_fee")
+    @NotNull
+    @Column(name = "interest_rate")
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride( name = "amount", column = @Column(name = "monthly_maintenance_fee")),
-            @AttributeOverride( name = "currency", column = @Column(name = "maintenance_fee_currency"))
+            @AttributeOverride( name = "amount", column = @Column(name = "interest_rate")),
+            @AttributeOverride( name = "currency", column = @Column(name = "interest_rate_currency"))
     })
-    private Money monthlyMaintenanceFee;
+    private Money interestRate;
 
-    public CheckingAccount(Money balance, String secretKey, AccountHolder primaryOwner) {
+    public SavingsAccount(Money balance, String secretKey, AccountHolder primaryOwner) {
         this.balance = balance;
         this.secretKey = secretKey;
         this.primaryOwner = primaryOwner;
 
         this.creationDate = LocalDate.now();
         setStandardPenaltyFee();
-        setStandardMaintanenceFee();
         setStandardMinimumBalance();
         this.status = Status.ACTIVE;
     }
 
-    public CheckingAccount(Money balance, String secretKey, AccountHolder primaryOwner, AccountHolder secondaryOwner) {
+    public SavingsAccount(Money balance, String secretKey, AccountHolder primaryOwner, AccountHolder secondaryOwner) {
         this.balance = balance;
         this.secretKey = secretKey;
         this.primaryOwner = primaryOwner;
@@ -66,20 +59,30 @@ public class CheckingAccount extends Account {
 
         this.creationDate = LocalDate.now();
         setStandardPenaltyFee();
-        setStandardMaintanenceFee();
         setStandardMinimumBalance();
         this.status = Status.ACTIVE;
     }
 
-    public void setStandardMinimumBalance() {
-        this.minimumBalance = new Money(new BigDecimal(250));
+    @Override
+    public void setBalance(Money balance) {
+        BigDecimal minBalance = new BigDecimal(99);
+        if (balance.getAmount().compareTo(minBalance) == 1) {
+            this.balance = balance;
+        }
+        else {
+            System.out.println("Balance out of bounds exception, work it out.");;
+        }
     }
 
-    public void setStandardMaintanenceFee() {
-        this.monthlyMaintenanceFee = new Money(new BigDecimal(12));
+    public void setStandardMinimumBalance() {
+        this.minimumBalance = new Money(new BigDecimal(1000));
     }
 
     public void setStandardPenaltyFee() {
         this.penaltyFee = new Money(new BigDecimal(40));
+    }
+
+    public void setStandardInterestRate() {
+        this.interestRate = new Money(new BigDecimal(0.0025));
     }
 }

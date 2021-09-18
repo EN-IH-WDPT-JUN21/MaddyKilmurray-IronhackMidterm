@@ -1,6 +1,8 @@
-package com.ironhack.midterm.dao.users;
+package com.ironhack.midterm.dao.users.usersubclasses;
 
 import com.ironhack.midterm.dao.Address;
+import com.ironhack.midterm.dao.users.Role;
+import com.ironhack.midterm.dao.users.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
