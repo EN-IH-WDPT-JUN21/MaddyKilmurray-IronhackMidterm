@@ -1,15 +1,15 @@
 package com.ironhack.midterm.dao.accounts.accountsubclasses;
 
+import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
-import com.ironhack.midterm.enums.Status;
+import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Currency;
 
 @Entity
 public class SavingsAccount extends Account {
@@ -21,15 +21,6 @@ public class SavingsAccount extends Account {
     private String secretKey;
 
     @NotNull
-    @Column(name = "minimum_balance")
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride( name = "amount", column = @Column(name = "minimum_balance")),
-            @AttributeOverride( name = "currency", column = @Column(name = "minimum_balance_currency"))
-    })
-    private Money minimumBalance;
-
-    @NotNull
     @Column(name = "interest_rate")
     @Embedded
     @AttributeOverrides({
@@ -38,33 +29,37 @@ public class SavingsAccount extends Account {
     })
     private Money interestRate;
 
-    public SavingsAccount(Money balance, String secretKey, AccountHolder primaryOwner) {
-        this.balance = balance;
-        this.secretKey = secretKey;
-        this.primaryOwner = primaryOwner;
-
-        this.creationDate = LocalDate.now();
-        setStandardPenaltyFee();
-        setStandardMinimumBalance();
-        this.status = Status.ACTIVE;
+    public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey, Money interestRate) throws BalanceOutOfBoundsException {
+        super(balance, primaryOwner);
+        setBalance(balance);
+        generateSecretKey(secretKey);
+        setInterestRate(interestRate);
     }
 
-    public SavingsAccount(Money balance, String secretKey, AccountHolder primaryOwner, AccountHolder secondaryOwner) {
-        this.balance = balance;
-        this.secretKey = secretKey;
-        this.primaryOwner = primaryOwner;
-        this.secondaryOwner = secondaryOwner;
+    public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey, Money interestRate) throws BalanceOutOfBoundsException {
+        super(balance, primaryOwner, secondaryOwner);
+        setBalance(balance);
+        generateSecretKey(secretKey);
+        setInterestRate(interestRate);
+    }
 
-        this.creationDate = LocalDate.now();
-        setStandardPenaltyFee();
-        setStandardMinimumBalance();
-        this.status = Status.ACTIVE;
+    public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey) throws BalanceOutOfBoundsException {
+        super(balance, primaryOwner);
+        setBalance(balance);
+        generateSecretKey(secretKey);
+        this.interestRate = new Money(Constants.SAVINGS_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
+    }
+
+    public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) throws BalanceOutOfBoundsException {
+        super(balance, primaryOwner, secondaryOwner);
+        setBalance(balance);
+        generateSecretKey(secretKey);
+        this.interestRate = new Money(Constants.SAVINGS_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
     }
 
     @Override
     public void setBalance(Money balance) {
-        BigDecimal minBalance = new BigDecimal(99);
-        if (balance.getAmount().compareTo(minBalance) == 1) {
+        if (balance.getAmount().compareTo(Constants.SAVINGS_ABSOLUTE_MINIMUM_BALANCE) == 1) {
             this.balance = balance;
         }
         else {
@@ -72,15 +67,13 @@ public class SavingsAccount extends Account {
         }
     }
 
-    public void setStandardMinimumBalance() {
-        this.minimumBalance = new Money(new BigDecimal(1000));
-    }
-
-    public void setStandardPenaltyFee() {
-        this.penaltyFee = new Money(new BigDecimal(40));
-    }
-
-    public void setStandardInterestRate() {
-        this.interestRate = new Money(new BigDecimal(0.0025));
+    public void setInterestRate(Money interestRate) throws BalanceOutOfBoundsException {
+        if (interestRate.getAmount().compareTo(Constants.SAVINGS_DEFAULT_INTEREST_RATE) >= 0 &&
+                interestRate.getAmount().compareTo(Constants.SAVINGS_MAXIMUM_INTEREST_RATE) <= -1) {
+            this.interestRate = interestRate;
+        }
+        else {
+            throw new BalanceOutOfBoundsException("Savings Account interest must be between 0.0025 and 0.5. Please try again.");
+        }
     }
 }

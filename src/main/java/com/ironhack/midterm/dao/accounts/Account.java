@@ -1,5 +1,6 @@
 package com.ironhack.midterm.dao.accounts;
 
+import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.enums.Status;
@@ -7,11 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.Currency;
 
 @Getter
 @Setter
@@ -57,4 +60,27 @@ public class Account {
     @NotNull
     @Enumerated(EnumType.STRING)
     protected Status status;
+
+    public Account(Money balance, AccountHolder primaryOwner) {
+        this.balance = balance;
+        this.primaryOwner = primaryOwner;
+        this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
+        this.creationDate = LocalDate.now();
+        this.status = Status.ACTIVE;
+    }
+
+    public Account(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner) {
+        this.balance = balance;
+        this.primaryOwner = primaryOwner;
+        this.secondaryOwner = secondaryOwner;
+        this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
+        this.creationDate = LocalDate.now();
+        this.status = Status.ACTIVE;
+    }
+
+    public String generateSecretKey(String secretKey) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        secretKey = encoder.encode(secretKey);
+        return secretKey;
+    }
 }

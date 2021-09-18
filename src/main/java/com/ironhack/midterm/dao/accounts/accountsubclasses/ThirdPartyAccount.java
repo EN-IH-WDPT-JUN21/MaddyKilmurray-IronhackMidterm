@@ -17,12 +17,27 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class ThirdPartyAccount extends Account {
 
-    private static final String accountType = "Third Party Account";
+    @NotNull
+    private String hashedKey;
 
-    public ThirdPartyAccount(long id, @NotNull Money balance, @NotBlank AccountHolder primaryOwner, AccountHolder secondaryOwner, @NotNull Money penaltyFee, @NotNull LocalDate creationDate, @NotNull Status status) {
-        super(id, balance, primaryOwner, secondaryOwner, penaltyFee, creationDate, status);
+    @NotNull
+    private String name;
+
+    public ThirdPartyAccount(Money balance, AccountHolder primaryOwner, String hashedKey, String name) {
+        super(balance, primaryOwner);
+        this.hashedKey = generateSecretKey(hashedKey);
+        this.name = name;
     }
+
+    public ThirdPartyAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String hashedKey, String name) {
+        super(balance, primaryOwner, secondaryOwner);
+        this.hashedKey = generateSecretKey(hashedKey);
+        this.name = name;
+    }
+
 }

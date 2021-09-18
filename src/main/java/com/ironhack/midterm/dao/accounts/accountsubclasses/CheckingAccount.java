@@ -1,9 +1,9 @@
 package com.ironhack.midterm.dao.accounts.accountsubclasses;
 
+import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +12,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Currency;
 
 @Getter
 @Setter
@@ -45,40 +44,17 @@ public class CheckingAccount extends Account {
     })
     private Money monthlyMaintenanceFee;
 
-    public CheckingAccount(Money balance, String secretKey, AccountHolder primaryOwner) {
-        this.balance = balance;
-        this.secretKey = secretKey;
-        this.primaryOwner = primaryOwner;
-
-        this.creationDate = LocalDate.now();
-        setStandardPenaltyFee();
-        setStandardMaintanenceFee();
-        setStandardMinimumBalance();
-        this.status = Status.ACTIVE;
+    public CheckingAccount(Money balance, AccountHolder primaryOwner, String secretKey) {
+        super(balance, primaryOwner);
+        this.secretKey = generateSecretKey(secretKey);
+        this.minimumBalance = new Money(Constants.CHECKING_MINIMUM_BALANCE, Currency.getInstance("GBP"));
+        this.monthlyMaintenanceFee = new Money(Constants.CHECKING_MAINTENANCE_FEE,Currency.getInstance("GBP"));
     }
 
-    public CheckingAccount(Money balance, String secretKey, AccountHolder primaryOwner, AccountHolder secondaryOwner) {
-        this.balance = balance;
-        this.secretKey = secretKey;
-        this.primaryOwner = primaryOwner;
-        this.secondaryOwner = secondaryOwner;
-
-        this.creationDate = LocalDate.now();
-        setStandardPenaltyFee();
-        setStandardMaintanenceFee();
-        setStandardMinimumBalance();
-        this.status = Status.ACTIVE;
-    }
-
-    public void setStandardMinimumBalance() {
-        this.minimumBalance = new Money(new BigDecimal(250));
-    }
-
-    public void setStandardMaintanenceFee() {
-        this.monthlyMaintenanceFee = new Money(new BigDecimal(12));
-    }
-
-    public void setStandardPenaltyFee() {
-        this.penaltyFee = new Money(new BigDecimal(40));
+    public CheckingAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) {
+        super(balance, primaryOwner, secondaryOwner);
+        this.secretKey = generateSecretKey(secretKey);
+        this.minimumBalance = new Money(Constants.CHECKING_MINIMUM_BALANCE, Currency.getInstance("GBP"));
+        this.monthlyMaintenanceFee = new Money(Constants.CHECKING_MAINTENANCE_FEE,Currency.getInstance("GBP"));
     }
 }

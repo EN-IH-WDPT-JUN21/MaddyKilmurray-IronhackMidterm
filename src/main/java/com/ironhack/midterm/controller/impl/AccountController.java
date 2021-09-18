@@ -43,10 +43,4 @@ public class AccountController {
         fullList.addAll(thirdPartyAccountRepository.findAll());
         return fullList;
     };
-
-    @PostMapping("/accounts/new/{accountType}")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Account createNew(@PathVariable(name = "accountType") String accountType, @RequestBody @Valid Account account) {
-        return accountService.createNewAccount(accountType,account);
-    }
 }

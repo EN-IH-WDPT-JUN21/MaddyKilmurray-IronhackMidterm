@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -21,34 +22,17 @@ import java.time.LocalDate;
 @Entity
 public class StudentCheckingAccount extends Account {
 
-    private static final String accountType = "Student Checking Account";
-
     @NotBlank
     @Column(name = "secret_key")
     private String secretKey;
 
-    public StudentCheckingAccount(Money balance, String secretKey, AccountHolder primaryOwner) {
-        this.balance = balance;
-        this.secretKey = secretKey;
-        this.primaryOwner = primaryOwner;
-
-        this.creationDate = LocalDate.now();
-        setStandardPenaltyFee();
-        this.status = Status.ACTIVE;
+    public StudentCheckingAccount(Money balance, AccountHolder primaryOwner, String secretKey) {
+        super(balance, primaryOwner);
+        this.secretKey = generateSecretKey(secretKey);
     }
 
-    public StudentCheckingAccount(Money balance, String secretKey, AccountHolder primaryOwner, AccountHolder secondaryOwner) {
-        this.balance = balance;
-        this.secretKey = secretKey;
-        this.primaryOwner = primaryOwner;
-        this.secondaryOwner = secondaryOwner;
-
-        this.creationDate = LocalDate.now();
-        setStandardPenaltyFee();
-        this.status = Status.ACTIVE;
-    }
-
-    public void setStandardPenaltyFee() {
-        this.penaltyFee = new Money(new BigDecimal(40));
+    public StudentCheckingAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) {
+        super(balance, primaryOwner, secondaryOwner);
+        this.secretKey = generateSecretKey(secretKey);
     }
 }
