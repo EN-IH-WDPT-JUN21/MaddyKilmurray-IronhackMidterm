@@ -20,6 +20,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@DiscriminatorValue("Student_Checking")
 public class StudentCheckingAccount extends Account {
 
     @NotBlank

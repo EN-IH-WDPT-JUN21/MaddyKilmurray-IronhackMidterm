@@ -20,7 +20,10 @@ import java.util.Currency;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@MappedSuperclass
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="account_type",
+        discriminatorType = DiscriminatorType.STRING)
 public class Account {
 
     @Id
@@ -36,13 +39,13 @@ public class Account {
     protected Money balance;
 
     @NotBlank
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "primary_account_holder_id")
+    @ManyToOne
+    @JoinColumn(name = "primary_owner_id")
     protected AccountHolder primaryOwner;
 
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "secondary_account_holder_id")
+    @ManyToOne
+    @JoinColumn(name = "secondary_owner_id")
     protected AccountHolder secondaryOwner;
 
     @NotNull

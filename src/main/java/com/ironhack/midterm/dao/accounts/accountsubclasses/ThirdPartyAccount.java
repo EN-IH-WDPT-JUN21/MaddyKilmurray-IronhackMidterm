@@ -3,23 +3,21 @@ package com.ironhack.midterm.dao.accounts.accountsubclasses;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
-import com.ironhack.midterm.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@DiscriminatorValue("Third_Party")
 public class ThirdPartyAccount extends Account {
 
     @NotNull

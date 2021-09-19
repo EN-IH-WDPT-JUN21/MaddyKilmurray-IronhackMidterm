@@ -1,6 +1,7 @@
 package com.ironhack.midterm.dao.users.usersubclasses;
 
 import com.ironhack.midterm.dao.Address;
+import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.Role;
 import com.ironhack.midterm.dao.users.User;
 import lombok.AllArgsConstructor;
@@ -58,17 +59,26 @@ public class AccountHolder extends User {
     })
     private Address mailingAddress;
 
+    @OneToMany(
+            mappedBy = "primaryOwner",
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL
+    )
+    private List<Account> accounts;
+
     @Override
     public Long getId() {
         return this.id;
     }
 
-    public AccountHolder(String username, String password, Role role, String name, LocalDate dateOfBirth, Address primaryAddress, Address mailingAddress) {
+    public AccountHolder(String username, String password, Role role, String name, LocalDate dateOfBirth, Address primaryAddress, Address mailingAddress, Account account) {
         super(username, password, new HashSet<>(Arrays.asList(role)));
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = primaryAddress;
         this.mailingAddress = mailingAddress;
+        this.accounts = new ArrayList<>();
+        this.accounts.add(account);
     }
 
     public Boolean isUnder24() {

@@ -5,13 +5,18 @@ import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Currency;
 
+@Getter
+@Setter
 @Entity
+@DiscriminatorValue("Savings")
 public class SavingsAccount extends Account {
 
     private static final String accountType = "Savings Account";
