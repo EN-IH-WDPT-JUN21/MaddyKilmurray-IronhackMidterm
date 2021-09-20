@@ -1,4 +1,4 @@
-package com.ironhack.midterm.service.interfaces;
+package com.ironhack.midterm.service.interfaces.notused;
 
 import com.ironhack.midterm.dao.accounts.Account;
 

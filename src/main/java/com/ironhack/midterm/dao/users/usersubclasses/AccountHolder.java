@@ -18,14 +18,8 @@ import java.util.*;
 @Getter
 @Setter
 @Entity
+@DiscriminatorValue("ACCOUNTHOLDER")
 public class AccountHolder extends User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @NotNull
-    private String name;
 
     @NotNull
     @Column(name = "date_of_birth")
@@ -35,13 +29,10 @@ public class AccountHolder extends User {
     @Column(name = "primary_address")
     @AttributeOverrides({
             @AttributeOverride( name = "houseNumber", column = @Column(name = "primary_house_number")),
-            @AttributeOverride( name = "firstLineOfAddress", column = @Column(name = "primary_first_line_of_address")),
-            @AttributeOverride( name = "secondLineOfAddress", column = @Column(name = "primary_second_line_of_address")),
-            @AttributeOverride( name = "thirdLineOfAddress", column = @Column(name = "primary_third_line_of_address")),
+            @AttributeOverride( name = "streetName", column = @Column(name = "primary_street_name")),
             @AttributeOverride( name = "city", column = @Column(name = "primary_city")),
-            @AttributeOverride( name = "county", column = @Column(name = "primary_county")),
-            @AttributeOverride( name = "country", column = @Column(name = "primary_country")),
-            @AttributeOverride( name = "postcode", column = @Column(name = "primary_postcode"))
+            @AttributeOverride( name = "postcode", column = @Column(name = "primary_postcode")),
+            @AttributeOverride( name = "country", column = @Column(name = "primary_country"))
     })
     private Address primaryAddress;
 
@@ -49,13 +40,11 @@ public class AccountHolder extends User {
     @Embedded
     @AttributeOverrides({
             @AttributeOverride( name = "houseNumber", column = @Column(name = "mailing_house_number")),
-            @AttributeOverride( name = "firstLineOfAddress", column = @Column(name = "mailing_first_line_of_address")),
-            @AttributeOverride( name = "secondLineOfAddress", column = @Column(name = "mailing_second_line_of_address")),
-            @AttributeOverride( name = "thirdLineOfAddress", column = @Column(name = "mailing_third_line_of_address")),
+            @AttributeOverride( name = "streetName", column = @Column(name = "mailing_street_name")),
             @AttributeOverride( name = "city", column = @Column(name = "mailing_city")),
-            @AttributeOverride( name = "county", column = @Column(name = "mailing_county")),
-            @AttributeOverride( name = "country", column = @Column(name = "mailing_country")),
-            @AttributeOverride( name = "postcode", column = @Column(name = "mailing_postcode"))
+            @AttributeOverride( name = "postcode", column = @Column(name = "mailing_postcode")),
+            @AttributeOverride( name = "country", column = @Column(name = "mailing_country"))
+
     })
     private Address mailingAddress;
 
@@ -66,19 +55,12 @@ public class AccountHolder extends User {
     )
     private List<Account> accounts;
 
-    @Override
-    public Long getId() {
-        return this.id;
-    }
-
-    public AccountHolder(String username, String password, Role role, String name, LocalDate dateOfBirth, Address primaryAddress, Address mailingAddress, Account account) {
-        super(username, password, new HashSet<>(Arrays.asList(role)));
-        this.name = name;
+    public AccountHolder(String name, String username, String password, Set<Role> roles, LocalDate dateOfBirth, Address primaryAddress, Address mailingAddress, List<Account> accounts) {
+        super(name, username, password, roles);
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = primaryAddress;
         this.mailingAddress = mailingAddress;
-        this.accounts = new ArrayList<>();
-        this.accounts.add(account);
+        this.accounts = accounts;
     }
 
     public Boolean isUnder24() {

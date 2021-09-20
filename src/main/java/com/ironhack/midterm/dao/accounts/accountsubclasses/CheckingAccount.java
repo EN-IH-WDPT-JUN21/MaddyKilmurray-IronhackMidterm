@@ -19,7 +19,7 @@ import java.util.Currency;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@DiscriminatorValue("Checking")
+@DiscriminatorValue("CHECKING")
 public class CheckingAccount extends Account {
 
     private static final String accountType = "Checking Account";

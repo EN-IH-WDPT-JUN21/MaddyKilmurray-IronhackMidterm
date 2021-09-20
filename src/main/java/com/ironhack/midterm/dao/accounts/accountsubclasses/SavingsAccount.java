@@ -16,7 +16,7 @@ import java.util.Currency;
 @Getter
 @Setter
 @Entity
-@DiscriminatorValue("Savings")
+@DiscriminatorValue("SAVINGS")
 public class SavingsAccount extends Account {
 
     private static final String accountType = "Savings Account";

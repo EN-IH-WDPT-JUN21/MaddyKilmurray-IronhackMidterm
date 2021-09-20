@@ -19,7 +19,7 @@ import java.util.Currency;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@DiscriminatorValue("Credit_Card")
+@DiscriminatorValue("CREDITCARD")
 public class CreditCardAccount extends Account {
 
     private static final String accountType = "Credit Card Account";

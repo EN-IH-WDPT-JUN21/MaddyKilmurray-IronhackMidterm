@@ -15,18 +15,13 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
 @Entity
+@DiscriminatorValue("THIRDPARTY")
 public class ThirdParty extends User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @NotNull
-    private String name;
 
     @NotNull
     @Column(name = "hashed_key")
@@ -35,14 +30,8 @@ public class ThirdParty extends User {
     @Transient
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    @Override
-    public Long getId() {
-        return this.id;
-    }
-
-    public ThirdParty(String username, String password, Role role, String name, String hashedKey) {
-        super(username, password, new HashSet<>(Arrays.asList(role)));
-        this.name = name;
+    public ThirdParty(String name, String username, String password, Set<Role> roles, String hashedKey) {
+        super(name, username, password, roles);
         this.hashedKey = encoder.encode(hashedKey);
     }
 }

@@ -1,8 +1,6 @@
-package com.ironhack.midterm.service.impl;
+package com.ironhack.midterm.service.impl.notused;
 
-import com.ironhack.midterm.dao.accounts.Account;
-import com.ironhack.midterm.dao.accounts.accountsubclasses.StudentCheckingAccount;
-import com.ironhack.midterm.service.interfaces.IStudentCheckingAccountService;
+import com.ironhack.midterm.service.interfaces.notused.IStudentCheckingAccountService;
 import org.springframework.stereotype.Service;
 
 @Service

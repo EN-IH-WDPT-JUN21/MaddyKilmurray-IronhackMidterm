@@ -7,33 +7,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
 @Entity
+@DiscriminatorValue("ADMIN")
 public class Admin extends User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @NotNull
-    private String name;
-
-    @Override
-    public Long getId() {
-        return this.id;
-    }
-
-    public Admin(String username, String password, Role role, String name) {
-        super(username, password, new HashSet<>(Arrays.asList(role)));
-        this.name = name;
+    public Admin(String name, String username, String password, Set<Role> roles) {
+        super(name, username, password, roles);
     }
 }

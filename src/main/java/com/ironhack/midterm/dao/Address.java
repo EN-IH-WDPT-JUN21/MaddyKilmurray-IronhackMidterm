@@ -6,12 +6,8 @@ import javax.persistence.Embeddable;
 public class Address {
 
     private long houseNumber;
-    private String firstLineOfAddress;
-    private String secondLineOfAddress;
-    private String thirdLineOfAddress;
-
+    private String streetName;
     private String city;
-    private String county;
-    private String country;
     private String postcode;
+    private String country;
 }

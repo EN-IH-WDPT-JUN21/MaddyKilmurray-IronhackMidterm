@@ -18,9 +18,6 @@ public class AccountService implements IAccountService {
     @Autowired
     private AccountRepository accountRepository;
 
-    @Autowired
-    private CheckingAccountRepository checkingAccountRepository;
-
     public Account createNewCheckingAccount(CheckingAccount account) {
         if (account.getPrimaryOwner().isUnder24()) {
             StudentCheckingAccount createdAccount = new StudentCheckingAccount(account.getBalance(),

@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@DiscriminatorValue("Third_Party")
+@DiscriminatorValue("THIRDPARTY")
 public class ThirdPartyAccount extends Account {
 
     @NotNull
