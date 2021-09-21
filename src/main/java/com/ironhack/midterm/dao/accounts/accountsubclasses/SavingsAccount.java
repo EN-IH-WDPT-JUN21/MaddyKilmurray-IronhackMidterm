@@ -3,9 +3,12 @@ package com.ironhack.midterm.dao.accounts.accountsubclasses;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
+import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -15,6 +18,8 @@ import java.util.Currency;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @DiscriminatorValue("SAVINGS")
 public class SavingsAccount extends Account {
@@ -35,28 +40,34 @@ public class SavingsAccount extends Account {
     private Money interestRate;
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey, Money interestRate) throws BalanceOutOfBoundsException {
-        super(balance, primaryOwner);
+        super(balance);
+        this.primaryOwner = primaryOwner;
         setBalance(balance);
         generateSecretKey(secretKey);
         setInterestRate(interestRate);
     }
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey, Money interestRate) throws BalanceOutOfBoundsException {
-        super(balance, primaryOwner, secondaryOwner);
+        super(balance);
+        this.primaryOwner = primaryOwner;
+        this.secondaryOwner = secondaryOwner;
         setBalance(balance);
         generateSecretKey(secretKey);
         setInterestRate(interestRate);
     }
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey) throws BalanceOutOfBoundsException {
-        super(balance, primaryOwner);
+        super(balance);
+        this.primaryOwner = primaryOwner;
         setBalance(balance);
         generateSecretKey(secretKey);
         this.interestRate = new Money(Constants.SAVINGS_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
     }
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) throws BalanceOutOfBoundsException {
-        super(balance, primaryOwner, secondaryOwner);
+        super(balance);
+        this.primaryOwner = primaryOwner;
+        this.secondaryOwner = secondaryOwner;
         setBalance(balance);
         generateSecretKey(secretKey);
         this.interestRate = new Money(Constants.SAVINGS_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));

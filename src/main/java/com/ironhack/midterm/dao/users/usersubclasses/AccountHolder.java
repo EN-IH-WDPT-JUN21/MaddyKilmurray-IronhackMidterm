@@ -18,6 +18,8 @@ import java.util.*;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @DiscriminatorValue("ACCOUNTHOLDER")
 public class AccountHolder extends User {
 

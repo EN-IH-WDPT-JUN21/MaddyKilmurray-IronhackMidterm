@@ -65,4 +65,6 @@ public class AccountController {
     public Account createNewAccount(@RequestBody @Valid ThirdPartyAccount account) {
         return accountService.createNewThirdPartyAccount(account);
     }
+
+
 }

@@ -1,17 +1,26 @@
 package com.ironhack.midterm.dao;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.Embeddable;
 import java.math.RoundingMode;
 import java.math.BigDecimal;
 import java.util.Currency;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Embeddable
 public class Money {
 
     private static final Currency USD = Currency.getInstance("USD");
     private static final RoundingMode DEFAULT_ROUNDING = RoundingMode.HALF_EVEN;
 
-    private final Currency currency;
+    private Currency currency;
 
     private BigDecimal amount;
 

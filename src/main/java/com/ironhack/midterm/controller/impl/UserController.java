@@ -6,7 +6,6 @@ import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
 import com.ironhack.midterm.repository.AccountHolderRepository;
 import com.ironhack.midterm.repository.UserRepository;
-import com.ironhack.midterm.service.impl.UserService;
 import com.ironhack.midterm.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,13 +35,13 @@ public class UserController {
 
     @GetMapping("/users/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<User> getAllUsersByUsername(@PathVariable String name) {
+    public Optional<User> getAllUsersByUsername(@PathVariable(name = "username") String name) {
         return userRepository.findByUsername(name);
     }
 
     @GetMapping("/users/byid/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<User> getAllUsersById(@PathVariable Long id) {
+    public Optional<User> getAllUsersById(@PathVariable(name = "id") Long id) {
         return userRepository.findById(id);
     }
 
@@ -68,5 +67,18 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public User createNewThirdParty(@RequestBody @Valid ThirdParty thirdParty) {
         return userService.createNewThirdParty(thirdParty);
+    }
+
+    @PatchMapping("/users/update/accountholder/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User updateUser(@PathVariable(name = "id") Long id,
+                               @RequestBody @Valid AccountHolder accountHolder) {
+        return userService.update(id,accountHolder);
+    }
+
+    @DeleteMapping("/users/remove/{id}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void removeUser(@PathVariable(name = "id") Long id) {
+        userService.remove(id);
     }
 }

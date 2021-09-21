@@ -8,13 +8,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @Entity
 @DiscriminatorValue("ADMIN")
 public class Admin extends User {

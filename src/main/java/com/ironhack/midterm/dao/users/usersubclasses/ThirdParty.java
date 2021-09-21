@@ -20,6 +20,8 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @DiscriminatorValue("THIRDPARTY")
 public class ThirdParty extends User {
 
@@ -27,11 +29,8 @@ public class ThirdParty extends User {
     @Column(name = "hashed_key")
     private String hashedKey;
 
-    @Transient
-    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-
     public ThirdParty(String name, String username, String password, Set<Role> roles, String hashedKey) {
         super(name, username, password, roles);
-        this.hashedKey = encoder.encode(hashedKey);
+        this.hashedKey = hashedKey;
     }
 }

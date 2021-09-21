@@ -2,6 +2,7 @@ package com.ironhack.midterm.dao.accounts.accountsubclasses;
 
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
+import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.enums.Status;
 import lombok.AllArgsConstructor;
@@ -28,12 +29,15 @@ public class StudentCheckingAccount extends Account {
     private String secretKey;
 
     public StudentCheckingAccount(Money balance, AccountHolder primaryOwner, String secretKey) {
-        super(balance, primaryOwner);
+        super(balance);
+        this.primaryOwner = primaryOwner;
         this.secretKey = generateSecretKey(secretKey);
     }
 
     public StudentCheckingAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) {
-        super(balance, primaryOwner, secondaryOwner);
+        super(balance);
+        this.primaryOwner = primaryOwner;
+        this.secondaryOwner = secondaryOwner;
         this.secretKey = generateSecretKey(secretKey);
     }
 }

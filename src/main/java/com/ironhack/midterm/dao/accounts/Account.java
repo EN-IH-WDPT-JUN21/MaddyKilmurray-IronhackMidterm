@@ -1,7 +1,9 @@
 package com.ironhack.midterm.dao.accounts;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
+import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.enums.Status;
 import lombok.AllArgsConstructor;
@@ -41,11 +43,13 @@ public class Account {
     @NotBlank
     @ManyToOne
     @JoinColumn(name = "primary_owner_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     protected AccountHolder primaryOwner;
 
 
     @ManyToOne
     @JoinColumn(name = "secondary_owner_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     protected AccountHolder secondaryOwner;
 
     @NotNull
@@ -63,6 +67,13 @@ public class Account {
     @NotNull
     @Enumerated(EnumType.STRING)
     protected Status status;
+
+    public Account(Money balance) {
+        this.balance = balance;
+        this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
+        this.creationDate = LocalDate.now();
+        this.status = Status.ACTIVE;
+    }
 
     public Account(Money balance, AccountHolder primaryOwner) {
         this.balance = balance;

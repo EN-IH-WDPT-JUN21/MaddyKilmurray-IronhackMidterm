@@ -2,7 +2,9 @@ package com.ironhack.midterm.dao.accounts.accountsubclasses;
 
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
+import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
+import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

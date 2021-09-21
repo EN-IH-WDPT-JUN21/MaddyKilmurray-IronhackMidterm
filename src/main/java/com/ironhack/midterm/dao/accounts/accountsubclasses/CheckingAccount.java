@@ -2,6 +2,7 @@ package com.ironhack.midterm.dao.accounts.accountsubclasses;
 
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.accounts.Account;
+import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.Money;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,6 @@ import java.util.Currency;
 @Entity
 @DiscriminatorValue("CHECKING")
 public class CheckingAccount extends Account {
-
-    private static final String accountType = "Checking Account";
 
     @NotBlank
     @Column(name = "secret_key")
@@ -46,14 +45,17 @@ public class CheckingAccount extends Account {
     private Money monthlyMaintenanceFee;
 
     public CheckingAccount(Money balance, AccountHolder primaryOwner, String secretKey) {
-        super(balance, primaryOwner);
+        super(balance);
+        this.primaryOwner = primaryOwner;
         this.secretKey = generateSecretKey(secretKey);
         this.minimumBalance = new Money(Constants.CHECKING_MINIMUM_BALANCE, Currency.getInstance("GBP"));
         this.monthlyMaintenanceFee = new Money(Constants.CHECKING_MAINTENANCE_FEE,Currency.getInstance("GBP"));
     }
 
     public CheckingAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) {
-        super(balance, primaryOwner, secondaryOwner);
+        super(balance);
+        this.primaryOwner = primaryOwner;
+        this.secondaryOwner = secondaryOwner;
         this.secretKey = generateSecretKey(secretKey);
         this.minimumBalance = new Money(Constants.CHECKING_MINIMUM_BALANCE, Currency.getInstance("GBP"));
         this.monthlyMaintenanceFee = new Money(Constants.CHECKING_MAINTENANCE_FEE,Currency.getInstance("GBP"));
