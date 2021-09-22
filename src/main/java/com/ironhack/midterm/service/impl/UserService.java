@@ -27,8 +27,8 @@ public class UserService implements IUserService {
 
     public User createNewAccountHolder(AccountHolder accountHolder) {
         AccountHolder newUser = new AccountHolder(accountHolder.getName(), accountHolder.getUsername(),
-                accountHolder.getPassword(), accountHolder.getRoles(), accountHolder.getDateOfBirth(), accountHolder.getPrimaryAddress(),
-                accountHolder.getMailingAddress(), accountHolder.getAccounts());
+                    accountHolder.getPassword(), accountHolder.getRoles(), accountHolder.getDateOfBirth(), accountHolder.getPrimaryAddress(),
+                    accountHolder.getMailingAddress(), accountHolder.getAccounts());
         return userRepository.save(newUser);
     }
 
@@ -38,12 +38,26 @@ public class UserService implements IUserService {
         return userRepository.save(newUser);
     }
 
-    public User update(Long id,AccountHolder accountHolder) {
+    public void updateUsernameAndPassword(Long id,Optional<String> username, Optional<String> password) {
+        Optional<User> foundUser = userRepository.findById(id);
+        if (!foundUser.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User doesn't exist");
+        }
+        if (username.isPresent()) {
+            foundUser.get().setUsername(username.get());
+        }
+        if (password.isPresent()) {
+            foundUser.get().setUsername(username.get());
+        }
+        userRepository.save(foundUser.get());
+    }
+
+    public User updateHolder(Long id,AccountHolder accountHolder) {
         Optional<User> foundUser = userRepository.findById(id);
         if (!foundUser.isPresent() || !(foundUser.get() instanceof AccountHolder)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account holder doesn't exist.");
         }
-        if (accountHolder.getName()!=null) {
+        if (!accountHolder.getName().isBlank() || !accountHolder.getName().equals(" ")) {
             foundUser.get().setName(accountHolder.getName());
         }
         if (accountHolder.getUsername()!=null) {
@@ -66,6 +80,49 @@ public class UserService implements IUserService {
         }
         if (accountHolder.getPrimaryAddress() != null) {
             ((AccountHolder) foundUser.get()).setPrimaryAddress(accountHolder.getPrimaryAddress());
+        }
+        return userRepository.save(foundUser.get());
+    }
+
+    public User updateThirdParty(Long id,ThirdParty thirdParty) {
+        Optional<User> foundUser = userRepository.findById(id);
+        if (!foundUser.isPresent() || !(foundUser.get() instanceof ThirdParty)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Third Party doesn't exist.");
+        }
+        if (thirdParty.getName().isBlank() || !thirdParty.getName().equals(" ")) {
+            foundUser.get().setName(thirdParty.getName());
+        }
+        if (thirdParty.getUsername()!=null) {
+            foundUser.get().setUsername(thirdParty.getUsername());
+        }
+        if (thirdParty.getPassword() != null) {
+            foundUser.get().setPassword(thirdParty.getPassword());
+        }
+        if (thirdParty.getRoles() != null) {
+            foundUser.get().setRoles(thirdParty.getRoles());
+        }
+        if (!thirdParty.getHashedKey().isBlank() || !thirdParty.getHashedKey().equals(" ")) {
+            ((ThirdParty) foundUser.get()).setHashedKey(thirdParty.getHashedKey());
+        }
+        return userRepository.save(foundUser.get());
+    }
+
+    public User updateAdmin(Long id,Admin admin) {
+        Optional<User> foundUser = userRepository.findById(id);
+        if (!foundUser.isPresent() || !(foundUser.get() instanceof Admin)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Admin doesn't exist.");
+        }
+        if (!admin.getName().isBlank() || !admin.getName().equals(" ")) {
+            foundUser.get().setName(admin.getName());
+        }
+        if (admin.getUsername()!=null) {
+            foundUser.get().setUsername(admin.getUsername());
+        }
+        if (admin.getPassword() != null) {
+            foundUser.get().setPassword(admin.getPassword());
+        }
+        if (admin.getRoles() != null) {
+            foundUser.get().setRoles(admin.getRoles());
         }
         return userRepository.save(foundUser.get());
     }

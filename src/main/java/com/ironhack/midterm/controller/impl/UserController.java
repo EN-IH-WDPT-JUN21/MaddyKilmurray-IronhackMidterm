@@ -69,11 +69,33 @@ public class UserController {
         return userService.createNewThirdParty(thirdParty);
     }
 
+    @PatchMapping("/users/update/logindetails/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateUsernameAndPassword(@PathVariable(name = "id") Long id,
+                                          @RequestParam Optional<String> username,
+                                          @RequestParam Optional<String> password) {
+        userService.updateUsernameAndPassword(id,username,password);
+    }
+
     @PatchMapping("/users/update/accountholder/{id}")
     @ResponseStatus(HttpStatus.OK)
     public User updateUser(@PathVariable(name = "id") Long id,
                                @RequestBody @Valid AccountHolder accountHolder) {
-        return userService.update(id,accountHolder);
+        return userService.updateHolder(id,accountHolder);
+    }
+
+    @PatchMapping("/users/update/thirdparty/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User updateUser(@PathVariable(name = "id") Long id,
+                           @RequestBody @Valid ThirdParty thirdParty) {
+        return userService.updateThirdParty(id,thirdParty);
+    }
+
+    @PatchMapping("/users/update/admin/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User updateUser(@PathVariable(name = "id") Long id,
+                           @RequestBody @Valid Admin admin) {
+        return userService.updateAdmin(id,admin);
     }
 
     @DeleteMapping("/users/remove/{id}")

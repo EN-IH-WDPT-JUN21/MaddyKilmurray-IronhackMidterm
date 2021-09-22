@@ -1,6 +1,8 @@
 package com.ironhack.midterm.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ironhack.midterm.dao.Address;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.Role;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -26,7 +29,10 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -50,12 +56,15 @@ public class UserControllerTest {
     private AccountHolder testAccountHolder2 = null;
     private ThirdParty testThirdParty = null;
 
+    private Address address1;
+    private Address address2;
+
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
-        Address address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");
-        Address address2 = new Address(2,"Short Avenue","Liverpool","L1 8JQ","United Kingdom");
+        address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");
+        address2 = new Address(2,"Short Avenue","Liverpool","L1 8JQ","United Kingdom");
 
         testAdmin = new Admin("Linda Ronstadt","Ronstadt","lind@",new HashSet<Role>());
         testAccountHolder1 = new AccountHolder("Ronda Grimes", "Ronda","gr1mes",
@@ -82,12 +91,137 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Test: GET user by username. Returns all user as expected")
+    @DisplayName("Test: GET user by username. Returns user as expected")
     void UserController_GetUserByUsername_AsExpected() throws Exception{
         MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/users/" + testAccountHolder1.getUsername()))
                 .andExpect(status().isOk()).andReturn();
         assertTrue(mvcResult.getResponse().getContentAsString().contains("Ronda Grimes"));
     }
 
+    @Test
+    @DisplayName("Test: GET user by id. Returns user as expected")
+    void UserController_GetUserById_AsExpected() throws Exception{
+        MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/users/" + testAccountHolder1.getId()))
+                .andExpect(status().isOk()).andReturn();
+        assertTrue(mvcResult.getResponse().getContentAsString().contains("Ronda Grimes"));
+    }
 
+    @Test
+    @DisplayName("Test: POST new Admin. Posts new Admin")
+    void UserController_PostAdmin_Created() throws Exception {
+        Admin testAdmin2 = new Admin("Mr Smith","DownWithNeo","sm1th",new HashSet<Role>());
+
+        String body = objectMapper.writeValueAsString(testAdmin2);
+
+        MvcResult result = mockMvc.perform(
+                post("/users/new/admin")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("DownWithNeo"));
+    }
+
+    @Test
+    @DisplayName("Test: POST new AccountHolder. Posts new AccountHolder")
+    void UserController_PostAccountHolder_Created() throws Exception {
+        AccountHolder testHolder = new AccountHolder("Mr Smith","DownWithNeo","sm1th",new HashSet<Role>(),
+                LocalDate.of(1970, 8, 26),address1,address2,new ArrayList<Account>());
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(testHolder);
+
+        MvcResult result = mockMvc.perform(
+                post("/users/new/accountholder")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("1970-08-26"));
+    }
+
+    @Test
+    @DisplayName("Test: POST new ThirdParty. Posts new ThirdParty")
+    void UserController_PostThirdParty_Created() throws Exception {
+        ThirdParty testHolder = new ThirdParty("Mr Smith","DownWithNeo","sm1th",
+                new HashSet<Role>(),"##hashed##");
+
+        String body = objectMapper.writeValueAsString(testHolder);
+
+        MvcResult result = mockMvc.perform(
+                post("/users/new/thirdparty")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("##hashed##"));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH Username and Password. Updates an existing Account with new username and password")
+    void UserController_PatchUsernameAndPassword_Updated() throws Exception {
+        String username = "NewUsername";
+        String password = "SuperSecurePassword";
+
+        MvcResult result = mockMvc.perform(patch("/users/update/logindetails/" + testAccountHolder1.getId())
+                        .param("username",username)
+                        .param("password",password))
+                .andExpect(status().isOk()).andReturn();
+    }
+
+    @Test
+    @DisplayName("Test: PATCH Account Holder. Updates Existing Account Holder")
+    void UserController_PatchAccountHolder_Updated() throws Exception {
+        AccountHolder testHolder = new AccountHolder("",null,null,null,
+                LocalDate.of(2002, 8, 15),address1,null,null);
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(testHolder);
+
+        MvcResult result = mockMvc.perform(patch("/users/update/accountholder/" + testAccountHolder1.getId())
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("2002-08-15"));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH Third Party. Updates Existing Third Party")
+    void UserController_PatchThirdParty_Updated() throws Exception {
+        ThirdParty testHolder = new ThirdParty("","TakeTheBluePill",null,
+                null,"");
+
+        String body = objectMapper.writeValueAsString(testHolder);
+
+        MvcResult result = mockMvc.perform(patch("/users/update/thirdparty/" + testThirdParty.getId())
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("TakeTheBluePill"));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH admin. Updates Existing admin")
+    void UserController_PatchAdmin_Updated() throws Exception {
+        Admin testAdmin2 = new Admin("","LindaR",null,null);
+
+        String body = objectMapper.writeValueAsString(testAdmin2);
+
+        MvcResult result = mockMvc.perform(patch("/users/update/admin/" + testAdmin.getId())
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("LindaR"));
+    }
+
+    @Test
+    @DisplayName("Test: DELETE user. Removes a user.")
+    void UserController_DeleteUser_Removed() throws Exception {
+        var countBeforeRequest = userRepository.count();
+        MvcResult result = mockMvc.perform( MockMvcRequestBuilders
+                .delete("/users/remove/" + testAccountHolder1.getId())).andExpect(status().isAccepted()).andReturn();
+        var countAfterRequest = userRepository.count();
+
+        assertEquals(countAfterRequest,countBeforeRequest - 1);
+    }
 }
