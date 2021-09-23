@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ironhack.midterm.dao.Address;
+import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.Role;
 import com.ironhack.midterm.dao.users.User;
@@ -24,10 +25,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,12 +60,19 @@ public class UserControllerTest {
     private AccountHolder testAccountHolder2 = null;
     private ThirdParty testThirdParty = null;
 
+    private Account testAccount = null;
+    private List<Account> testAccountList = null;
+
     private Address address1;
     private Address address2;
 
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+
+        testAccount = new Account(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")));
+        testAccountList.add(testAccount);
+        accountRepository.save(testAccount);
 
         address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");
         address2 = new Address(2,"Short Avenue","Liverpool","L1 8JQ","United Kingdom");
@@ -72,7 +83,7 @@ public class UserControllerTest {
                 new ArrayList<Account>());
         testAccountHolder2 = new AccountHolder("Melissa McCarthy", "McCarthy","melmel",
                 new HashSet<Role>(),LocalDate.of(1970, Month.AUGUST, 26),address2,address1,
-                new ArrayList<Account>());
+                testAccountList);
         testThirdParty = new ThirdParty("Bust-A-Mortgage","mortgage","bust@",new HashSet<Role>(),
                 "banana");
         userRepository.save(testAdmin);
@@ -101,9 +112,19 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test: GET user by id. Returns user as expected")
     void UserController_GetUserById_AsExpected() throws Exception{
-        MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/users/" + testAccountHolder1.getId()))
+        MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/users/byid/" + testAccountHolder1.getId()))
                 .andExpect(status().isOk()).andReturn();
         assertTrue(mvcResult.getResponse().getContentAsString().contains("Ronda Grimes"));
+    }
+
+    @Test
+    @DisplayName("Test: GET balance by username. Returns balance as expected")
+    void UserController_GetBalanceByUserName_AsExpected() throws Exception{
+        BigDecimal testValue = new BigDecimal(55.65);
+
+        MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/myaccount/balance" + testAccountHolder2.getUsername()))
+                .andExpect(status().isOk()).andReturn();
+        assertTrue(mvcResult.getResponse().getContentAsString().contains(testValue.toString()));
     }
 
     @Test

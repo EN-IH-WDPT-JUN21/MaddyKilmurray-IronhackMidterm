@@ -4,7 +4,7 @@ import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
-import com.ironhack.midterm.repository.AccountHolderRepository;
+import com.ironhack.midterm.repository.AccountRepository;
 import com.ironhack.midterm.repository.UserRepository;
 import com.ironhack.midterm.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class UserController {
     private UserRepository userRepository;
 
     @Autowired
-    private AccountHolderRepository accountHolderRepository;
+    private AccountRepository accountRepository;
 
     @Autowired
     private IUserService userService;
@@ -43,12 +43,6 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> getAllUsersById(@PathVariable(name = "id") Long id) {
         return userRepository.findById(id);
-    }
-
-    @GetMapping("/myaccount/balance")
-    @ResponseStatus(HttpStatus.OK)
-    public Optional<User> getBalanceByUser(@RequestParam String username) {
-        return userRepository.getBalanceByUsername(username);
     }
 
     @PostMapping("/users/new/admin")

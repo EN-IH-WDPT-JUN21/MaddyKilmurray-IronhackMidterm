@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Currency;
@@ -40,7 +41,6 @@ public class Account {
     })
     protected Money balance;
 
-    @NotBlank
     @ManyToOne
     @JoinColumn(name = "primary_owner_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
