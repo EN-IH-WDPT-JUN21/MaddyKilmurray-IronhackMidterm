@@ -5,6 +5,7 @@ import com.ironhack.midterm.dao.Address;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.Role;
+import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
@@ -36,25 +37,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TransactionControllerTest {
 
     @Autowired
-    private WebApplicationContext webApplicationContext;
+    private AccountRepository accountRepository;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private AccountRepository accountRepository;
+    private WebApplicationContext webApplicationContext;
 
     private MockMvc mockMvc;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private Admin testAdmin = null;
-    private AccountHolder testAccountHolder1 = null;
-    private AccountHolder testAccountHolder2 = null;
-    private ThirdParty testThirdParty = null;
-
-    private Account testAccount = null;
-    private List<Account> testAccountList = null;
+    private AccountHolder accountHolder;
+    private Account testAccount;
 
     private Address address1;
     private Address address2;
@@ -63,26 +59,16 @@ public class TransactionControllerTest {
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
-        testAccount = new Account(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")));
-        testAccountList.add(testAccount);
-        accountRepository.save(testAccount);
-
         address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");
         address2 = new Address(2,"Short Avenue","Liverpool","L1 8JQ","United Kingdom");
 
-        testAdmin = new Admin("Linda Ronstadt","Ronstadt","lind@",new HashSet<Role>());
-        testAccountHolder1 = new AccountHolder("Ronda Grimes", "Ronda","gr1mes",
-                new HashSet<Role>(), LocalDate.of(2005, Month.JANUARY, 8),address1,address2,
+        accountHolder = new AccountHolder("Ronda Grimes", "Ronda","gr1mes",
+                new HashSet<Role>(),LocalDate.of(2005, Month.JANUARY, 8),address1,address2,
                 new ArrayList<Account>());
-        testAccountHolder2 = new AccountHolder("Melissa McCarthy", "McCarthy","melmel",
-                new HashSet<Role>(),LocalDate.of(1970, Month.AUGUST, 26),address2,address1,
-                testAccountList);
-        testThirdParty = new ThirdParty("Bust-A-Mortgage","mortgage","bust@",new HashSet<Role>(),
-                "banana");
-        userRepository.save(testAdmin);
-        userRepository.save(testAccountHolder1);
-        userRepository.save(testAccountHolder2);
-        userRepository.save(testThirdParty);
+        userRepository.save(accountHolder);
+
+        testAccount = new Account(new Money(new BigDecimal(55.65),Currency.getInstance("GBP")),accountHolder);
+        accountRepository.save(testAccount);
     }
 
     @Test
