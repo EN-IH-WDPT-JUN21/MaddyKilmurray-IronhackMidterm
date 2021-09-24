@@ -1,4 +1,4 @@
-package com.ironhack.midterm.repository;
+package com.ironhack.midterm.repository.users;
 
 import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.enums.AccountType;

@@ -1,4 +1,4 @@
-package com.ironhack.midterm.repository;
+package com.ironhack.midterm.repository.accounts;
 
 import com.ironhack.midterm.dao.accounts.accountsubclasses.CheckingAccount;
 import org.springframework.data.jpa.repository.JpaRepository;

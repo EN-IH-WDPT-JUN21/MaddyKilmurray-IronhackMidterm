@@ -6,7 +6,8 @@ import com.ironhack.midterm.dao.accounts.accountsubclasses.CreditCardAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.SavingsAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.ThirdPartyAccount;
 import com.ironhack.midterm.dao.users.User;
-import com.ironhack.midterm.repository.*;
+import com.ironhack.midterm.repository.accounts.AccountRepository;
+import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.service.interfaces.IAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

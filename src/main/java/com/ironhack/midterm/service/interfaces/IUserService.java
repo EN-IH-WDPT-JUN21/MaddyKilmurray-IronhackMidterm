@@ -1,5 +1,8 @@
 package com.ironhack.midterm.service.interfaces;
 
+import com.ironhack.midterm.controller.dto.users.AccountHolderDTO;
+import com.ironhack.midterm.controller.dto.users.AdminDTO;
+import com.ironhack.midterm.controller.dto.users.ThirdPartyDTO;
 import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.Admin;
@@ -9,12 +12,14 @@ import java.util.Optional;
 
 public interface IUserService {
 
-    User createNewAdmin(Admin admin);
-    User createNewAccountHolder(AccountHolder accountHolder);
-    User createNewThirdParty(ThirdParty thirdParty);
-    void updateUsernameAndPassword(Long id,Optional<String> username, Optional<String> password);
-    User updateHolder(Long id,AccountHolder accountHolder);
-    User updateThirdParty(Long id,ThirdParty thirdParty);
-    User updateAdmin(Long id,Admin admin);
+    AdminDTO createNewAdmin(AdminDTO admin);
+    AccountHolderDTO createNewAccountHolder(AccountHolderDTO accountHolder);
+    ThirdPartyDTO createNewThirdParty(ThirdPartyDTO thirdParty);
+    void updateUsernameAndPassword(Long id,String username, String password);
+    void updateUsername(Long id,String username);
+    void updatePassword(Long id,String password);
+    AccountHolderDTO updateHolder(Long id,AccountHolderDTO accountHolder);
+    ThirdPartyDTO updateThirdParty(Long id,ThirdPartyDTO thirdParty);
+    AdminDTO updateAdmin(Long id,AdminDTO admin);
     void remove(Long id);
 }

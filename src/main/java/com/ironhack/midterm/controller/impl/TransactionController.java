@@ -1,18 +1,13 @@
 package com.ironhack.midterm.controller.impl;
 
-import com.ironhack.midterm.controller.interfaces.ITransactionController;
+import com.ironhack.midterm.controller.dto.MoneyDTO;
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.dao.users.User;
-import com.ironhack.midterm.enums.AccountType;
-import com.ironhack.midterm.repository.AccountRepository;
-import com.ironhack.midterm.repository.UserRepository;
+import com.ironhack.midterm.repository.accounts.AccountRepository;
+import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.service.interfaces.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
-import java.util.Optional;
 
 @RestController
 public class TransactionController {
@@ -28,7 +23,7 @@ public class TransactionController {
 
     @GetMapping("/accounts/getbalance/checking/{account_id}")
     @ResponseStatus(HttpStatus.OK)
-    public Money getCheckingBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
+    public MoneyDTO getCheckingBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
         return transactionService.retrieveCheckingBalance(id, username);
     }
 

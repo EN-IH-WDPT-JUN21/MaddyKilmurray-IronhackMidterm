@@ -2,7 +2,6 @@ package com.ironhack.midterm.dao.accounts.accountsubclasses;
 
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.accounts.Account;
-import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.Money;
 import lombok.AllArgsConstructor;
@@ -15,9 +14,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.Currency;
+
+import static java.time.temporal.ChronoUnit.MONTHS;
 
 @Getter
 @Setter
@@ -69,12 +71,12 @@ public class CheckingAccount extends Account {
         this.monthlyMaintenanceFeeLastApplied = creationDate;
     }
 
-    public static void applyMonthlyMaintenance(CheckingAccount account) {
-        BigDecimal monthsBetween = new BigDecimal(ChronoUnit.MONTHS.between(
-                YearMonth.from(account.getMonthlyMaintenanceFeeLastApplied()),
-                YearMonth.from(LocalDate.now())
-        ));
-        BigDecimal newBalance = account.getBalance().getAmount().add(Constants.CHECKING_MAINTENANCE_FEE.multiply(monthsBetween));
-        account.setBalance(new Money(newBalance,Currency.getInstance("GBP")));
+    public void applyMonthlyMaintenance() {
+        int currentMonth = LocalDate.now().getMonthValue();
+        int lastAppliedMonth = this.getMonthlyMaintenanceFeeLastApplied().getMonthValue();
+        if ((currentMonth - lastAppliedMonth) >= 1) {
+            BigDecimal newBalance = this.getBalance().getAmount().add(Constants.CHECKING_MAINTENANCE_FEE.multiply(BigDecimal.valueOf(currentMonth - lastAppliedMonth)));
+            this.setBalance(new Money(newBalance, Currency.getInstance("GBP")));
+        }
     }
 }

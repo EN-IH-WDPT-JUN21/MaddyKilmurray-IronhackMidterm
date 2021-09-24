@@ -6,7 +6,7 @@ import com.ironhack.midterm.dao.accounts.accountsubclasses.CreditCardAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.SavingsAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.StudentCheckingAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.ThirdPartyAccount;
-import com.ironhack.midterm.repository.AccountRepository;
+import com.ironhack.midterm.repository.accounts.AccountRepository;
 import com.ironhack.midterm.service.interfaces.IAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,11 +1,19 @@
 package com.ironhack.midterm.service.impl;
 
+import com.ironhack.midterm.controller.dto.users.AccountHolderDTO;
+import com.ironhack.midterm.controller.dto.users.AdminDTO;
+import com.ironhack.midterm.controller.dto.users.ThirdPartyDTO;
 import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
-import com.ironhack.midterm.repository.UserRepository;
+import com.ironhack.midterm.repository.accounts.AccountRepository;
+import com.ironhack.midterm.repository.users.AccountHolderRepository;
+import com.ironhack.midterm.repository.users.AdminRepository;
+import com.ironhack.midterm.repository.users.ThirdPartyRepository;
+import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.service.interfaces.IUserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,42 +27,71 @@ public class UserService implements IUserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User createNewAdmin(Admin admin) {
+    @Autowired
+    private AccountHolderRepository accountHolderRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
+    private ThirdPartyRepository thirdPartyRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+    public AdminDTO createNewAdmin(AdminDTO admin) {
         Admin newUser = new Admin(admin.getName(), admin.getUsername(), admin.getPassword(),
                 admin.getRoles());
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+        return convertToAdminDto(newUser);
     }
 
-    public User createNewAccountHolder(AccountHolder accountHolder) {
+    public AccountHolderDTO createNewAccountHolder(AccountHolderDTO accountHolder) {
         AccountHolder newUser = new AccountHolder(accountHolder.getName(), accountHolder.getUsername(),
                     accountHolder.getPassword(), accountHolder.getRoles(), accountHolder.getDateOfBirth(), accountHolder.getPrimaryAddress(),
                     accountHolder.getMailingAddress(), accountHolder.getAccounts());
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+        return convertToAccHolderDto(newUser);
     }
 
-    public User createNewThirdParty(ThirdParty thirdParty) {
+    public ThirdPartyDTO createNewThirdParty(ThirdPartyDTO thirdParty) {
         ThirdParty newUser = new ThirdParty(thirdParty.getName(), thirdParty.getUsername(), thirdParty.getPassword(),
                 thirdParty.getRoles(), thirdParty.getHashedKey());
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+        return convertToThirdPartyDto(newUser);
     }
 
-    public void updateUsernameAndPassword(Long id,Optional<String> username, Optional<String> password) {
+    public void updateUsernameAndPassword(Long id,String username, String password) {
         Optional<User> foundUser = userRepository.findById(id);
         if (!foundUser.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User doesn't exist");
         }
-        if (username.isPresent()) {
-            foundUser.get().setUsername(username.get());
-        }
-        if (password.isPresent()) {
-            foundUser.get().setUsername(username.get());
-        }
+        foundUser.get().setUsername(username);
+        foundUser.get().setPassword(password);
         userRepository.save(foundUser.get());
     }
 
-    public User updateHolder(Long id,AccountHolder accountHolder) {
+    public void updateUsername(Long id,String username) {
         Optional<User> foundUser = userRepository.findById(id);
-        if (!foundUser.isPresent() || !(foundUser.get() instanceof AccountHolder)) {
+        if (!foundUser.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User doesn't exist");
+        }
+        foundUser.get().setUsername(username);
+        userRepository.save(foundUser.get());
+    }
+
+    public void updatePassword(Long id,String password) {
+        Optional<User> foundUser = userRepository.findById(id);
+        if (!foundUser.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User doesn't exist");
+        }
+        foundUser.get().setPassword(password);
+        userRepository.save(foundUser.get());
+    }
+
+    public AccountHolderDTO updateHolder(Long id,AccountHolderDTO accountHolder) {
+        Optional<AccountHolder> foundUser = accountHolderRepository.findById(id);
+        if (!foundUser.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account holder doesn't exist.");
         }
         if (!accountHolder.getName().isBlank() || !accountHolder.getName().equals(" ")) {
@@ -70,24 +107,25 @@ public class UserService implements IUserService {
             foundUser.get().setRoles(accountHolder.getRoles());
         }
         if (accountHolder.getAccounts()!=null) {
-            ((AccountHolder) foundUser.get()).setAccounts(accountHolder.getAccounts());
+            (foundUser.get()).setAccounts(accountHolder.getAccounts());
         }
         if (accountHolder.getDateOfBirth() != null) {
-            ((AccountHolder) foundUser.get()).setDateOfBirth(accountHolder.getDateOfBirth());
+            (foundUser.get()).setDateOfBirth(accountHolder.getDateOfBirth());
         }
         if (accountHolder.getMailingAddress() != null) {
-            ((AccountHolder) foundUser.get()).setMailingAddress(accountHolder.getMailingAddress());
+            (foundUser.get()).setMailingAddress(accountHolder.getMailingAddress());
         }
         if (accountHolder.getPrimaryAddress() != null) {
-            ((AccountHolder) foundUser.get()).setPrimaryAddress(accountHolder.getPrimaryAddress());
+            (foundUser.get()).setPrimaryAddress(accountHolder.getPrimaryAddress());
         }
-        return userRepository.save(foundUser.get());
+        accountHolderRepository.save(foundUser.get());
+        return convertToAccHolderDto(foundUser.get());
     }
 
-    public User updateThirdParty(Long id,ThirdParty thirdParty) {
-        Optional<User> foundUser = userRepository.findById(id);
-        if (!foundUser.isPresent() || !(foundUser.get() instanceof ThirdParty)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Third Party doesn't exist.");
+    public ThirdPartyDTO updateThirdParty(Long id,ThirdPartyDTO thirdParty) {
+        Optional<ThirdParty> foundUser = thirdPartyRepository.findById(id);
+        if (!foundUser.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Third Party user doesn't exist.");
         }
         if (thirdParty.getName().isBlank() || !thirdParty.getName().equals(" ")) {
             foundUser.get().setName(thirdParty.getName());
@@ -102,14 +140,15 @@ public class UserService implements IUserService {
             foundUser.get().setRoles(thirdParty.getRoles());
         }
         if (!thirdParty.getHashedKey().isBlank() || !thirdParty.getHashedKey().equals(" ")) {
-            ((ThirdParty) foundUser.get()).setHashedKey(thirdParty.getHashedKey());
+            foundUser.get().setHashedKey(thirdParty.getHashedKey());
         }
-        return userRepository.save(foundUser.get());
+        thirdPartyRepository.save(foundUser.get());
+        return convertToThirdPartyDto(foundUser.get());
     }
 
-    public User updateAdmin(Long id,Admin admin) {
-        Optional<User> foundUser = userRepository.findById(id);
-        if (!foundUser.isPresent() || !(foundUser.get() instanceof Admin)) {
+    public AdminDTO updateAdmin(Long id,AdminDTO admin) {
+        Optional<Admin> foundUser = adminRepository.findById(id);
+        if (!foundUser.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Admin doesn't exist.");
         }
         if (!admin.getName().isBlank() || !admin.getName().equals(" ")) {
@@ -124,7 +163,8 @@ public class UserService implements IUserService {
         if (admin.getRoles() != null) {
             foundUser.get().setRoles(admin.getRoles());
         }
-        return userRepository.save(foundUser.get());
+        adminRepository.save(foundUser.get());
+        return convertToAdminDto(foundUser.get());
     }
 
     public void remove(Long id) {
@@ -135,5 +175,20 @@ public class UserService implements IUserService {
         else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User doesn't exist");
         }
+    }
+
+    private AdminDTO convertToAdminDto(Admin user) {
+        AdminDTO adminDTO = modelMapper.map(user, AdminDTO.class);
+        return adminDTO;
+    }
+
+    private AccountHolderDTO convertToAccHolderDto(AccountHolder user) {
+        AccountHolderDTO accountHolderDTO = modelMapper.map(user, AccountHolderDTO.class);
+        return accountHolderDTO;
+    }
+
+    private ThirdPartyDTO convertToThirdPartyDto(ThirdParty user) {
+        ThirdPartyDTO thirdPartyDTO = modelMapper.map(user, ThirdPartyDTO.class);
+        return thirdPartyDTO;
     }
 }

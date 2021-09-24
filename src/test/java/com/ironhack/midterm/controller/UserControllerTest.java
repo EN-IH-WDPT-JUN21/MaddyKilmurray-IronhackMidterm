@@ -10,8 +10,8 @@ import com.ironhack.midterm.dao.users.Role;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
-import com.ironhack.midterm.repository.AccountRepository;
-import com.ironhack.midterm.repository.UserRepository;
+import com.ironhack.midterm.repository.accounts.AccountRepository;
+import com.ironhack.midterm.repository.users.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -69,10 +69,6 @@ public class UserControllerTest {
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
-        testAccount = new Account(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")));
-        testAccountList.add(testAccount);
-        accountRepository.save(testAccount);
-
         address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");
         address2 = new Address(2,"Short Avenue","Liverpool","L1 8JQ","United Kingdom");
 
@@ -82,13 +78,16 @@ public class UserControllerTest {
                 new ArrayList<Account>());
         testAccountHolder2 = new AccountHolder("Melissa McCarthy", "McCarthy","melmel",
                 new HashSet<Role>(),LocalDate.of(1970, Month.AUGUST, 26),address2,address1,
-                testAccountList);
+                new ArrayList<>());
         testThirdParty = new ThirdParty("Bust-A-Mortgage","mortgage","bust@",new HashSet<Role>(),
                 "banana");
         userRepository.save(testAdmin);
         userRepository.save(testAccountHolder1);
         userRepository.save(testAccountHolder2);
         userRepository.save(testThirdParty);
+
+        testAccount = new Account(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")));
+        accountRepository.save(testAccount);
     }
 
     @Test
@@ -105,7 +104,7 @@ public class UserControllerTest {
     void UserController_GetUserByUsername_AsExpected() throws Exception{
         MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/users/" + testAccountHolder1.getUsername()))
                 .andExpect(status().isOk()).andReturn();
-        assertTrue(mvcResult.getResponse().getContentAsString().contains("Ronda Grimes"));
+        assertTrue(mvcResult.getResponse().getContentAsString().contains("Ronda"));
     }
 
     @Test
@@ -114,16 +113,6 @@ public class UserControllerTest {
         MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/users/byid/" + testAccountHolder1.getId()))
                 .andExpect(status().isOk()).andReturn();
         assertTrue(mvcResult.getResponse().getContentAsString().contains("Ronda Grimes"));
-    }
-
-    @Test
-    @DisplayName("Test: GET balance by username. Returns balance as expected")
-    void UserController_GetBalanceByUserName_AsExpected() throws Exception{
-        BigDecimal testValue = new BigDecimal(55.65);
-
-        MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/myaccount/balance" + testAccountHolder2.getUsername()))
-                .andExpect(status().isOk()).andReturn();
-        assertTrue(mvcResult.getResponse().getContentAsString().contains(testValue.toString()));
     }
 
     @Test
@@ -208,8 +197,8 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test: PATCH Third Party. Updates Existing Third Party")
     void UserController_PatchThirdParty_Updated() throws Exception {
-        ThirdParty testHolder = new ThirdParty("","TakeTheBluePill",null,
-                null,"");
+        ThirdParty testHolder = new ThirdParty("neo","TakeTheBluePill",null,
+                null,"bluepill");
 
         String body = objectMapper.writeValueAsString(testHolder);
 

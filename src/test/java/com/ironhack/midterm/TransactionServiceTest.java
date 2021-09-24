@@ -3,14 +3,14 @@ package com.ironhack.midterm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ironhack.midterm.dao.Address;
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.*;
 import com.ironhack.midterm.dao.users.Role;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
 import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
-import com.ironhack.midterm.repository.*;
+import com.ironhack.midterm.repository.accounts.*;
+import com.ironhack.midterm.repository.users.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,7 +68,6 @@ public class TransactionServiceTest {
     private SavingsAccount testSavingsAccount = null;
     private CreditCardAccount testCreditCard = null;
     private ThirdPartyAccount testThirdPartyAccount = null;
-    private List<Account> testAccountList = null;
 
     private Address address1;
     private Address address2;
@@ -77,38 +76,33 @@ public class TransactionServiceTest {
     public void setUp() throws BalanceOutOfBoundsException {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
-        testCheckingAccount = new CheckingAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"secretKey");
-        testStudentAccount = new StudentCheckingAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"studentSecretKey");
-        testSavingsAccount = new SavingsAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"secretKey");
-        testCreditCard = new CreditCardAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1);
-        testThirdPartyAccount = new ThirdPartyAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"hashedKey","Mortgages are us.");
-        testAccountList.add(testCheckingAccount);
-        testAccountList.add(testStudentAccount);
-        testAccountList.add(testSavingsAccount);
-        testAccountList.add(testCreditCard);
-        testAccountList.add(testThirdPartyAccount);
-        accountRepository.save(testCheckingAccount);
-        accountRepository.save(testStudentAccount);
-        accountRepository.save(testSavingsAccount);
-        accountRepository.save(testCreditCard);
-        accountRepository.save(testThirdPartyAccount);
-
         address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");
         address2 = new Address(2,"Short Avenue","Liverpool","L1 8JQ","United Kingdom");
 
         testAdmin = new Admin("Linda Ronstadt","Ronstadt","lind@",new HashSet<Role>());
         testAccountHolder1 = new AccountHolder("Ronda Grimes", "Ronda","gr1mes",
                 new HashSet<Role>(), LocalDate.of(2005, Month.JANUARY, 8),address1,address2,
-                testAccountList);
+                new ArrayList<>());
         testAccountHolder2 = new AccountHolder("Melissa McCarthy", "McCarthy","melmel",
                 new HashSet<Role>(),LocalDate.of(1970, Month.AUGUST, 26),address2,address1,
-                testAccountList);
+                new ArrayList<>());
         testThirdParty = new ThirdParty("Bust-A-Mortgage","mortgage","bust@",new HashSet<Role>(),
                 "banana");
         userRepository.save(testAdmin);
         userRepository.save(testAccountHolder1);
         userRepository.save(testAccountHolder2);
         userRepository.save(testThirdParty);
+
+        testCheckingAccount = new CheckingAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"secretKey");
+        testStudentAccount = new StudentCheckingAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"studentSecretKey");
+        testSavingsAccount = new SavingsAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"secretKey");
+        testCreditCard = new CreditCardAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1);
+        testThirdPartyAccount = new ThirdPartyAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"hashedKey","Mortgages are us.");
+        accountRepository.save(testCheckingAccount);
+        accountRepository.save(testStudentAccount);
+        accountRepository.save(testSavingsAccount);
+        accountRepository.save(testCreditCard);
+        accountRepository.save(testThirdPartyAccount);
     }
 
     @Test
