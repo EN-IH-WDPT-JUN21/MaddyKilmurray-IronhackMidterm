@@ -14,6 +14,11 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.Currency;
 
 @Getter
@@ -39,12 +44,15 @@ public class SavingsAccount extends Account {
     })
     private Money interestRate;
 
+    private LocalDate interestLastApplied = null;
+
     public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey, Money interestRate) throws BalanceOutOfBoundsException {
         super(balance);
         this.primaryOwner = primaryOwner;
         setBalance(balance);
         generateSecretKey(secretKey);
         setInterestRate(interestRate);
+        this.interestLastApplied = creationDate;
     }
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey, Money interestRate) throws BalanceOutOfBoundsException {
@@ -54,6 +62,7 @@ public class SavingsAccount extends Account {
         setBalance(balance);
         generateSecretKey(secretKey);
         setInterestRate(interestRate);
+        this.interestLastApplied = creationDate;
     }
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey) throws BalanceOutOfBoundsException {
@@ -62,6 +71,7 @@ public class SavingsAccount extends Account {
         setBalance(balance);
         generateSecretKey(secretKey);
         this.interestRate = new Money(Constants.SAVINGS_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
+        this.interestLastApplied = creationDate;
     }
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) throws BalanceOutOfBoundsException {
@@ -71,6 +81,7 @@ public class SavingsAccount extends Account {
         setBalance(balance);
         generateSecretKey(secretKey);
         this.interestRate = new Money(Constants.SAVINGS_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
+        this.interestLastApplied = creationDate;
     }
 
     @Override
@@ -90,6 +101,17 @@ public class SavingsAccount extends Account {
         }
         else {
             throw new BalanceOutOfBoundsException("Savings Account interest must be between 0.0025 and 0.5. Please try again.");
+        }
+    }
+
+    public static void applyYearlyInterest(SavingsAccount account) {
+        BigDecimal yearsBetween = new BigDecimal(ChronoUnit.YEARS.between(
+                account.getInterestLastApplied(),
+                LocalDate.now()
+        )).setScale(0, RoundingMode.DOWN);
+        if (yearsBetween.compareTo(BigDecimal.valueOf(1).setScale(0,RoundingMode.UP)) >= 0) {
+            BigDecimal newBalance = account.getBalance().getAmount().add(account.getInterestRate().getAmount().multiply(yearsBetween));
+            account.setBalance(new Money(newBalance, Currency.getInstance("GBP")));
         }
     }
 }

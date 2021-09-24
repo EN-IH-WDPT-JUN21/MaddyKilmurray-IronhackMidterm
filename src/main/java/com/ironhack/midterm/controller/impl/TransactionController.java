@@ -1,6 +1,7 @@
 package com.ironhack.midterm.controller.impl;
 
 import com.ironhack.midterm.controller.interfaces.ITransactionController;
+import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.enums.AccountType;
 import com.ironhack.midterm.repository.AccountRepository;
@@ -25,16 +26,28 @@ public class TransactionController {
     @Autowired
     private ITransactionService transactionService;
 
-    @GetMapping("/myaccount/balance") // Need to review SQL statement, as not currently working
+    @GetMapping("/accounts/getbalance/checking/{account_id}")
     @ResponseStatus(HttpStatus.OK)
-    public Long getBalanceByUser(@RequestParam String username, @RequestParam AccountType type) {
-        return userRepository.getBalanceByUsername(username, type);
+    public Money getCheckingBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
+        return transactionService.retrieveCheckingBalance(id, username);
     }
 
-    @GetMapping("/accounts/getbalance/{id}")
+    @GetMapping("/accounts/getbalance/studentchecking/{account_id}")
     @ResponseStatus(HttpStatus.OK)
-    public BigDecimal getBalanceById(@PathVariable(name = "id") long id) {
-        return accountRepository.findBalanceById(id);
+    public Money getStudentCheckingBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
+        return transactionService.retrieveStudentCheckingBalance(id, username);
+    }
+
+    @GetMapping("/accounts/getbalance/savings/{account_id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Money getSavingsBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
+        return transactionService.retrieveSavingsBalance(id, username);
+    }
+
+    @GetMapping("/accounts/getbalance/creditcard/{account_id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Money getCreditCardBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
+        return transactionService.retrieveCreditCardBalance(id, username);
     }
 
 }

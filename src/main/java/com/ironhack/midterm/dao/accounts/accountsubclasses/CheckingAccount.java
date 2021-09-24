@@ -13,6 +13,10 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.Currency;
 
 @Getter
@@ -44,12 +48,15 @@ public class CheckingAccount extends Account {
     })
     private Money monthlyMaintenanceFee;
 
+    private LocalDate monthlyMaintenanceFeeLastApplied = null;
+
     public CheckingAccount(Money balance, AccountHolder primaryOwner, String secretKey) {
         super(balance);
         this.primaryOwner = primaryOwner;
         this.secretKey = generateSecretKey(secretKey);
         this.minimumBalance = new Money(Constants.CHECKING_MINIMUM_BALANCE, Currency.getInstance("GBP"));
         this.monthlyMaintenanceFee = new Money(Constants.CHECKING_MAINTENANCE_FEE,Currency.getInstance("GBP"));
+        this.monthlyMaintenanceFeeLastApplied = creationDate;
     }
 
     public CheckingAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) {
@@ -59,5 +66,15 @@ public class CheckingAccount extends Account {
         this.secretKey = generateSecretKey(secretKey);
         this.minimumBalance = new Money(Constants.CHECKING_MINIMUM_BALANCE, Currency.getInstance("GBP"));
         this.monthlyMaintenanceFee = new Money(Constants.CHECKING_MAINTENANCE_FEE,Currency.getInstance("GBP"));
+        this.monthlyMaintenanceFeeLastApplied = creationDate;
+    }
+
+    public static void applyMonthlyMaintenance(CheckingAccount account) {
+        BigDecimal monthsBetween = new BigDecimal(ChronoUnit.MONTHS.between(
+                YearMonth.from(account.getMonthlyMaintenanceFeeLastApplied()),
+                YearMonth.from(LocalDate.now())
+        ));
+        BigDecimal newBalance = account.getBalance().getAmount().add(Constants.CHECKING_MAINTENANCE_FEE.multiply(monthsBetween));
+        account.setBalance(new Money(newBalance,Currency.getInstance("GBP")));
     }
 }
