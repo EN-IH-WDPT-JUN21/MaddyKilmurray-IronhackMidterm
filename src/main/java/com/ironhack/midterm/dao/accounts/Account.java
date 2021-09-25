@@ -3,6 +3,7 @@ package com.ironhack.midterm.dao.accounts;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
+import com.ironhack.midterm.dao.Transactions;
 import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.enums.Status;
@@ -17,6 +18,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 
@@ -69,14 +71,15 @@ public class Account {
     @Enumerated(EnumType.STRING)
     protected Status status;
 
-//    @
-//    protected List<LocalDate> transactionRecord;
+    @ElementCollection
+    protected List<Transactions> transactionRecord;
 
     public Account(Money balance) {
         this.balance = balance;
         this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
         this.creationDate = LocalDate.now();
         this.status = Status.ACTIVE;
+        this.transactionRecord = new ArrayList<Transactions>();
     }
 
     public Account(Money balance, AccountHolder primaryOwner) {
@@ -85,6 +88,7 @@ public class Account {
         this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
         this.creationDate = LocalDate.now();
         this.status = Status.ACTIVE;
+        this.transactionRecord = new ArrayList<Transactions>();
     }
 
     public Account(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner) {
@@ -94,6 +98,7 @@ public class Account {
         this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
         this.creationDate = LocalDate.now();
         this.status = Status.ACTIVE;
+        this.transactionRecord = new ArrayList<Transactions>();
     }
 
     public String generateSecretKey(String secretKey) {

@@ -1,13 +1,17 @@
 package com.ironhack.midterm.controller.impl;
 
 import com.ironhack.midterm.controller.dto.MoneyDTO;
-import com.ironhack.midterm.dao.Money;
+import com.ironhack.midterm.dao.accounts.Account;
+import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.service.interfaces.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 public class TransactionController {
@@ -51,6 +55,15 @@ public class TransactionController {
         return transactionService.retrieveThirdPartyBalance(id, username);
     }
 
-    
+    // WRITE THE TRANSACTION CLASS AND DTO AND USE THAT IN THE REQUEST BODY INSTEAD
+    @PatchMapping("/accounts/admin/transferfunds/{transferId}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void adminTransferFunds(@PathVariable(name = "transferId") long transferId,
+                                                @RequestBody @Valid long receivingId,
+                                   MoneyDTO transferAmount) throws BalanceOutOfBoundsException {
+        transactionService.transferFunds(transferId,receivingId,transferAmount);
+//        return accountRepository.findById(transferId);
+    }
+
 
 }

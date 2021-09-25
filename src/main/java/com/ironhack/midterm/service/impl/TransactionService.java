@@ -4,9 +4,12 @@ import com.ironhack.midterm.controller.dto.MoneyDTO;
 import com.ironhack.midterm.controller.dto.users.UserDTO;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
+import com.ironhack.midterm.dao.Transactions;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.*;
 import com.ironhack.midterm.dao.users.User;
+import com.ironhack.midterm.enums.Status;
+import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import com.ironhack.midterm.repository.accounts.*;
 import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.service.interfaces.ITransactionService;
@@ -22,10 +25,13 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Currency;
+import java.util.List;
 import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.MONTHS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 @Service
 public class TransactionService implements ITransactionService {
@@ -223,10 +229,43 @@ public class TransactionService implements ITransactionService {
         return newBalance;
     }
 
-    public void penaltyFeeCheck(Account account) {
-        if (account.getBalance().getAmount().compareTo(BigDecimal.valueOf(0)) < 0) {
-            BigDecimal penaltyFeeApplied = account.getBalance().getAmount().subtract(Constants.PENALTY_FEE);
-            account.setBalance(new Money(penaltyFeeApplied));
+    public Boolean penaltyFeeCheck(Account transferAccount, BigDecimal transferRequest) {
+        BigDecimal newAccountTotal = transferAccount.getBalance().getAmount().subtract(transferRequest);
+        if (newAccountTotal.compareTo(BigDecimal.valueOf(0)) < 0) {
+            transferAccount.getBalance().decreaseAmount(Constants.PENALTY_FEE);
+            return false;
+        }
+        else {
+            transferAccount.setBalance(new Money(newAccountTotal));
+            return true;
+        }
+    }
+
+//    public void fraudCheck(Account account, Transactions transaction) {
+//        List<Transactions> transactionsList = new ArrayList<>();
+//        for (int i = 0; i < account.getTransactionRecord().size(); i++) {
+//            transactionsList.add(account.getTransactionRecord().get(i));
+//        }
+//
+//
+//    }
+
+    public void transferFunds(long transferAccountId, long receivingAccountId, MoneyDTO transferRequest) throws BalanceOutOfBoundsException {
+        Optional<Account> transferAccount = accountRepository.findById(transferAccountId);
+        Optional<Account> receivingAccount = accountRepository.findById(receivingAccountId);
+        if (transferAccount.get().getStatus().equals(Status.FROZEN) || receivingAccount.get().getStatus().equals(Status.FROZEN)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is frozen, and no transactions can be made.");
+        }
+        Transactions newTransaction = new Transactions(LocalDate.now());
+        Boolean penaltyCheck = penaltyFeeCheck(transferAccount.get(),transferRequest.getAmount());
+        if (penaltyCheck == true) {
+            receivingAccount.get().getBalance().increaseAmount(transferRequest.getAmount());
+            accountRepository.save(transferAccount.get());
+            accountRepository.save(receivingAccount.get());
+        }
+        else {
+            accountRepository.save(transferAccount.get());
+            throw new BalanceOutOfBoundsException("Insufficient funds available.");
         }
     }
 }
