@@ -3,8 +3,7 @@ package com.ironhack.midterm.dao.accounts;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.dao.Transactions;
-import com.ironhack.midterm.dao.users.User;
+import com.ironhack.midterm.dao.Transaction;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.enums.Status;
 import lombok.AllArgsConstructor;
@@ -14,8 +13,6 @@ import lombok.Setter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -71,15 +68,27 @@ public class Account {
     @Enumerated(EnumType.STRING)
     protected Status status;
 
-    @ElementCollection
-    protected List<Transactions> transactionRecord;
+    @OneToMany(
+            mappedBy = "transferAccount",
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL
+    )
+    protected List<Transaction> paymentTransactions;
+
+    @OneToMany(
+            mappedBy = "receivingAccount",
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL
+    )
+    protected List<Transaction> receivingTransactions;
 
     public Account(Money balance) {
         this.balance = balance;
         this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
         this.creationDate = LocalDate.now();
         this.status = Status.ACTIVE;
-        this.transactionRecord = new ArrayList<Transactions>();
+        this.paymentTransactions = new ArrayList<>();
+        this.receivingTransactions = new ArrayList<>();
     }
 
     public Account(Money balance, AccountHolder primaryOwner) {
@@ -88,7 +97,8 @@ public class Account {
         this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
         this.creationDate = LocalDate.now();
         this.status = Status.ACTIVE;
-        this.transactionRecord = new ArrayList<Transactions>();
+        this.paymentTransactions = new ArrayList<>();
+        this.receivingTransactions = new ArrayList<>();
     }
 
     public Account(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner) {
@@ -98,7 +108,8 @@ public class Account {
         this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
         this.creationDate = LocalDate.now();
         this.status = Status.ACTIVE;
-        this.transactionRecord = new ArrayList<Transactions>();
+        this.paymentTransactions = new ArrayList<>();
+        this.receivingTransactions = new ArrayList<>();
     }
 
     public String generateSecretKey(String secretKey) {

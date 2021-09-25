@@ -3,7 +3,6 @@ package com.ironhack.midterm.dao.accounts.accountsubclasses;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
-import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import lombok.AllArgsConstructor;
@@ -14,11 +13,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.util.Currency;
 
 @Getter
@@ -44,7 +39,7 @@ public class SavingsAccount extends Account {
     })
     private Money interestRate;
 
-    private LocalDate interestLastApplied = null;
+    private LocalDate savingsInterestLastApplied = null;
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey, Money interestRate) throws BalanceOutOfBoundsException {
         super(balance);
@@ -52,7 +47,7 @@ public class SavingsAccount extends Account {
         setBalance(balance);
         generateSecretKey(secretKey);
         setInterestRate(interestRate);
-        this.interestLastApplied = creationDate;
+        this.savingsInterestLastApplied = creationDate;
     }
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey, Money interestRate) throws BalanceOutOfBoundsException {
@@ -62,7 +57,7 @@ public class SavingsAccount extends Account {
         setBalance(balance);
         generateSecretKey(secretKey);
         setInterestRate(interestRate);
-        this.interestLastApplied = creationDate;
+        this.savingsInterestLastApplied = creationDate;
     }
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey) throws BalanceOutOfBoundsException {
@@ -71,7 +66,7 @@ public class SavingsAccount extends Account {
         setBalance(balance);
         generateSecretKey(secretKey);
         this.interestRate = new Money(Constants.SAVINGS_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
-        this.interestLastApplied = creationDate;
+        this.savingsInterestLastApplied = creationDate;
     }
 
     public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) throws BalanceOutOfBoundsException {
@@ -81,7 +76,7 @@ public class SavingsAccount extends Account {
         setBalance(balance);
         generateSecretKey(secretKey);
         this.interestRate = new Money(Constants.SAVINGS_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
-        this.interestLastApplied = creationDate;
+        this.savingsInterestLastApplied = creationDate;
     }
 
     @Override

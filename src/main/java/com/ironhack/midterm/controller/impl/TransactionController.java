@@ -1,6 +1,7 @@
 package com.ironhack.midterm.controller.impl;
 
 import com.ironhack.midterm.controller.dto.MoneyDTO;
+import com.ironhack.midterm.controller.dto.TransactionDTO;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
@@ -56,13 +57,11 @@ public class TransactionController {
     }
 
     // WRITE THE TRANSACTION CLASS AND DTO AND USE THAT IN THE REQUEST BODY INSTEAD
-    @PatchMapping("/accounts/admin/transferfunds/{transferId}")
+    @PatchMapping("/accounts/admin/transferfunds/")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void adminTransferFunds(@PathVariable(name = "transferId") long transferId,
-                                                @RequestBody @Valid long receivingId,
-                                   MoneyDTO transferAmount) throws BalanceOutOfBoundsException {
-        transactionService.transferFunds(transferId,receivingId,transferAmount);
-//        return accountRepository.findById(transferId);
+    public void adminTransferFunds(@RequestBody @Valid TransactionDTO transaction) throws BalanceOutOfBoundsException {
+        transactionService.transferFunds(transaction);
+//        return accountRepository.findById(transaction.getTransferAccount().getId());
     }
 
 

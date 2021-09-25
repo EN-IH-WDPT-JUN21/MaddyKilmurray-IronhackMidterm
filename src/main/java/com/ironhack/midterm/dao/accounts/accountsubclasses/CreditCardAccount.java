@@ -3,7 +3,6 @@ package com.ironhack.midterm.dao.accounts.accountsubclasses;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
-import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import lombok.AllArgsConstructor;
@@ -13,10 +12,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.util.Currency;
 
 @Getter
@@ -45,14 +41,14 @@ public class CreditCardAccount extends Account {
     })
     private Money interestRate;
 
-    private LocalDate interestRateLastApplied = null;
+    private LocalDate creditCardInterestLastApplied = null;
 
     public CreditCardAccount(Money balance, AccountHolder primaryOwner, Money creditLimit, Money interestRate) throws BalanceOutOfBoundsException {
         super(balance);
         this.primaryOwner = primaryOwner;
         setCreditLimit(creditLimit);
         setInterestRate(interestRate);
-        this.interestRateLastApplied = creationDate;
+        this.creditCardInterestLastApplied = creationDate;
     }
 
     public CreditCardAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, Money creditLimit, Money interestRate) throws BalanceOutOfBoundsException {
@@ -61,7 +57,7 @@ public class CreditCardAccount extends Account {
         this.secondaryOwner = secondaryOwner;
         setCreditLimit(creditLimit);
         setInterestRate(interestRate);
-        this.interestRateLastApplied = creationDate;
+        this.creditCardInterestLastApplied = creationDate;
     }
 
     public CreditCardAccount(Money balance, AccountHolder primaryOwner) {
@@ -69,7 +65,7 @@ public class CreditCardAccount extends Account {
         this.primaryOwner = primaryOwner;
         this.creditLimit = new Money(Constants.CCARD_DEFAULT_CREDITLIMIT, Currency.getInstance("GBP"));
         this.interestRate = new Money(Constants.CCARD_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
-        this.interestRateLastApplied = creationDate;
+        this.creditCardInterestLastApplied = creationDate;
     }
 
     public CreditCardAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner) {
@@ -78,7 +74,7 @@ public class CreditCardAccount extends Account {
         this.secondaryOwner = secondaryOwner;
         this.creditLimit = new Money(Constants.CCARD_DEFAULT_CREDITLIMIT, Currency.getInstance("GBP"));
         this.interestRate = new Money(Constants.CCARD_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
-        this.interestRateLastApplied = creationDate;
+        this.creditCardInterestLastApplied = creationDate;
     }
 
     public CreditCardAccount(Money balance, AccountHolder primaryOwner, Money creditLimit) throws BalanceOutOfBoundsException {
@@ -86,7 +82,7 @@ public class CreditCardAccount extends Account {
         this.primaryOwner = primaryOwner;
         setCreditLimit(creditLimit);
         this.interestRate = new Money(Constants.CCARD_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
-        this.interestRateLastApplied = creationDate;
+        this.creditCardInterestLastApplied = creationDate;
     }
 
     public CreditCardAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, Money creditLimit) throws BalanceOutOfBoundsException {
@@ -95,7 +91,7 @@ public class CreditCardAccount extends Account {
         this.secondaryOwner = secondaryOwner;
         setCreditLimit(creditLimit);
         this.interestRate = new Money(Constants.CCARD_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
-        this.interestRateLastApplied = creationDate;
+        this.creditCardInterestLastApplied = creationDate;
     }
 
     public void setInterestRate(Money interestRate) throws BalanceOutOfBoundsException {

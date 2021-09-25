@@ -1,19 +1,18 @@
 package com.ironhack.midterm.service.impl;
 
 import com.ironhack.midterm.controller.dto.MoneyDTO;
-import com.ironhack.midterm.controller.dto.users.UserDTO;
+import com.ironhack.midterm.controller.dto.TransactionDTO;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.dao.Transactions;
+import com.ironhack.midterm.dao.Transaction;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.*;
-import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.enums.Status;
 import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
+import com.ironhack.midterm.repository.TransactionRepository;
 import com.ironhack.midterm.repository.accounts.*;
 import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.service.interfaces.ITransactionService;
-import org.apache.tomcat.jni.Local;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,15 +22,11 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Currency;
-import java.util.List;
 import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.MONTHS;
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 @Service
 public class TransactionService implements ITransactionService {
@@ -53,6 +48,9 @@ public class TransactionService implements ITransactionService {
 
     @Autowired
     private ThirdPartyAccountRepository thirdPartyAccountRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -99,7 +97,7 @@ public class TransactionService implements ITransactionService {
         else {
             BigDecimal newBalance = applyYearlyInterest(foundAccount.get());
             foundAccount.get().setBalance(new Money(newBalance,Currency.getInstance("GBP")));
-            foundAccount.get().setInterestLastApplied(LocalDate.now());
+            foundAccount.get().setSavingsInterestLastApplied(LocalDate.now());
             savingsAccountRepository.save(foundAccount.get());
             return convertToMoneyDto(foundAccount.get().getBalance());
         }
@@ -116,7 +114,7 @@ public class TransactionService implements ITransactionService {
         else {
             BigDecimal newBalance = applyMonthlyInterest(foundAccount.get());
             foundAccount.get().setBalance(new Money(newBalance,Currency.getInstance("GBP")));
-            foundAccount.get().setInterestRateLastApplied(LocalDate.now());
+            foundAccount.get().setCreditCardInterestLastApplied(LocalDate.now());
             creditCardAccountRepository.save(foundAccount.get());
             return convertToMoneyDto(foundAccount.get().getBalance());
         }
@@ -168,7 +166,7 @@ public class TransactionService implements ITransactionService {
 
     public BigDecimal applyYearlyInterest(SavingsAccount account) {
         BigDecimal yearsBetween = null;
-        if (account.getInterestLastApplied() == null){
+        if (account.getSavingsInterestLastApplied() == null){
             yearsBetween = new BigDecimal(ChronoUnit.YEARS.between(
                     account.getCreationDate(),
                     LocalDate.now()
@@ -176,7 +174,7 @@ public class TransactionService implements ITransactionService {
         }
         else {
             yearsBetween = new BigDecimal(ChronoUnit.YEARS.between(
-                    account.getInterestLastApplied(),
+                    account.getSavingsInterestLastApplied(),
                     LocalDate.now()
             )).setScale(0, RoundingMode.DOWN);
         }
@@ -189,7 +187,7 @@ public class TransactionService implements ITransactionService {
 
     public BigDecimal applyMonthlyInterest(CreditCardAccount account) {
         BigDecimal monthsBetween = null;
-        if (account.getInterestRateLastApplied() == null) {
+        if (account.getCreditCardInterestLastApplied() == null) {
             monthsBetween = BigDecimal.valueOf(ChronoUnit.MONTHS.between(
                     account.getCreationDate(),
                     LocalDate.now()
@@ -197,7 +195,7 @@ public class TransactionService implements ITransactionService {
         }
         else {
             monthsBetween = BigDecimal.valueOf(ChronoUnit.MONTHS.between(
-                    account.getInterestRateLastApplied(),
+                    account.getCreditCardInterestLastApplied(),
                     LocalDate.now()
             ));
         }
@@ -229,8 +227,8 @@ public class TransactionService implements ITransactionService {
         return newBalance;
     }
 
-    public Boolean penaltyFeeCheck(Account transferAccount, BigDecimal transferRequest) {
-        BigDecimal newAccountTotal = transferAccount.getBalance().getAmount().subtract(transferRequest);
+    public Boolean penaltyFeeCheck(Account transferAccount, Transaction transaction) {
+        BigDecimal newAccountTotal = transferAccount.getBalance().getAmount().subtract(transaction.getTransactionAmount());
         if (newAccountTotal.compareTo(BigDecimal.valueOf(0)) < 0) {
             transferAccount.getBalance().decreaseAmount(Constants.PENALTY_FEE);
             return false;
@@ -250,22 +248,31 @@ public class TransactionService implements ITransactionService {
 //
 //    }
 
-    public void transferFunds(long transferAccountId, long receivingAccountId, MoneyDTO transferRequest) throws BalanceOutOfBoundsException {
-        Optional<Account> transferAccount = accountRepository.findById(transferAccountId);
-        Optional<Account> receivingAccount = accountRepository.findById(receivingAccountId);
-        if (transferAccount.get().getStatus().equals(Status.FROZEN) || receivingAccount.get().getStatus().equals(Status.FROZEN)) {
+    public void transferFunds(TransactionDTO transactionDTO) throws BalanceOutOfBoundsException {
+        Transaction newTransaction = convertToTransaction(transactionDTO);
+        if (newTransaction.getTransferAccount().getStatus().equals(Status.FROZEN) || newTransaction.getReceivingAccount().getStatus().equals(Status.FROZEN)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is frozen, and no transactions can be made.");
         }
-        Transactions newTransaction = new Transactions(LocalDate.now());
-        Boolean penaltyCheck = penaltyFeeCheck(transferAccount.get(),transferRequest.getAmount());
+
+        Boolean penaltyCheck = penaltyFeeCheck(newTransaction.getTransferAccount(),newTransaction);
         if (penaltyCheck == true) {
-            receivingAccount.get().getBalance().increaseAmount(transferRequest.getAmount());
-            accountRepository.save(transferAccount.get());
-            accountRepository.save(receivingAccount.get());
+            newTransaction.getReceivingAccount().getBalance().increaseAmount(newTransaction.getTransactionAmount());
+            accountRepository.save(newTransaction.getTransferAccount());
+            accountRepository.save(newTransaction.getReceivingAccount());
         }
         else {
-            accountRepository.save(transferAccount.get());
+            accountRepository.save(newTransaction.getTransferAccount());
             throw new BalanceOutOfBoundsException("Insufficient funds available.");
         }
+    }
+
+    private Transaction convertToTransaction(TransactionDTO transactionDTO) {
+        Optional<Account> transferAccount = accountRepository.findById(transactionDTO.getTransferAccountId());
+        Optional<Account> receivingAccount = accountRepository.findById(transactionDTO.getReceivingAccountId());
+        if (!transferAccount.isPresent() || !receivingAccount.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account not found.");
+        }
+        Transaction transaction = new Transaction(transactionDTO.getTransactionAmount(),transferAccount.get(),receivingAccount.get());
+        return transaction;
     }
 }
