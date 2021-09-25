@@ -103,15 +103,4 @@ public class SavingsAccount extends Account {
             throw new BalanceOutOfBoundsException("Savings Account interest must be between 0.0025 and 0.5. Please try again.");
         }
     }
-
-    public static void applyYearlyInterest(SavingsAccount account) {
-        BigDecimal yearsBetween = new BigDecimal(ChronoUnit.YEARS.between(
-                account.getInterestLastApplied(),
-                LocalDate.now()
-        )).setScale(0, RoundingMode.DOWN);
-        if (yearsBetween.compareTo(BigDecimal.valueOf(1).setScale(0,RoundingMode.UP)) >= 0) {
-            BigDecimal newBalance = account.getBalance().getAmount().add(account.getInterestRate().getAmount().multiply(yearsBetween));
-            account.setBalance(new Money(newBalance, Currency.getInstance("GBP")));
-        }
-    }
 }

@@ -8,9 +8,9 @@ import java.math.BigDecimal;
 public interface ITransactionService {
 
     MoneyDTO retrieveCheckingBalance(long accountid, String username);
-    Money retrieveStudentCheckingBalance(long accountid, String username);
-    Money retrieveSavingsBalance(long accountid, String username);
-    Money retrieveCreditCardBalance(long accountid, String username);
-    Money retrieveThirdPartyBalance(long accountid, String username);
+    MoneyDTO retrieveStudentCheckingBalance(long accountid, String username);
+    MoneyDTO retrieveSavingsBalance(long accountid, String username);
+    MoneyDTO retrieveCreditCardBalance(long accountid, String username);
+    MoneyDTO retrieveThirdPartyBalance(long accountid, String username);
 
 }

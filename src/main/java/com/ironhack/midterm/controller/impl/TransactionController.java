@@ -29,20 +29,28 @@ public class TransactionController {
 
     @GetMapping("/accounts/getbalance/studentchecking/{account_id}")
     @ResponseStatus(HttpStatus.OK)
-    public Money getStudentCheckingBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
+    public MoneyDTO getStudentCheckingBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
         return transactionService.retrieveStudentCheckingBalance(id, username);
     }
 
     @GetMapping("/accounts/getbalance/savings/{account_id}")
     @ResponseStatus(HttpStatus.OK)
-    public Money getSavingsBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
+    public MoneyDTO getSavingsBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
         return transactionService.retrieveSavingsBalance(id, username);
     }
 
     @GetMapping("/accounts/getbalance/creditcard/{account_id}")
     @ResponseStatus(HttpStatus.OK)
-    public Money getCreditCardBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
+    public MoneyDTO getCreditCardBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
         return transactionService.retrieveCreditCardBalance(id, username);
     }
+
+    @GetMapping("/accounts/getbalance/thirdparty/{account_id}")
+    @ResponseStatus(HttpStatus.OK)
+    public MoneyDTO getThirdPartyBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
+        return transactionService.retrieveThirdPartyBalance(id, username);
+    }
+
+    
 
 }

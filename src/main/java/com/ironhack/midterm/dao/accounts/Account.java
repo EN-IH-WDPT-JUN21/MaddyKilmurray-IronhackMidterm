@@ -18,6 +18,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Currency;
+import java.util.List;
 
 @Getter
 @Setter
@@ -67,6 +68,9 @@ public class Account {
     @NotNull
     @Enumerated(EnumType.STRING)
     protected Status status;
+
+//    @
+//    protected List<LocalDate> transactionRecord;
 
     public Account(Money balance) {
         this.balance = balance;

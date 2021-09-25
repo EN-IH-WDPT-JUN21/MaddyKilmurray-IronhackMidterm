@@ -1,5 +1,6 @@
 package com.ironhack.midterm.dao.accounts.accountsubclasses;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.User;
@@ -12,6 +13,8 @@ import lombok.Setter;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
 @Getter

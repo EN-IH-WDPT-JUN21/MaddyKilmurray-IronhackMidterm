@@ -1,6 +1,8 @@
 package com.ironhack.midterm.dao.users.usersubclasses;
 
 import com.ironhack.midterm.dao.Address;
+import com.ironhack.midterm.dao.accounts.Account;
+import com.ironhack.midterm.dao.accounts.accountsubclasses.ThirdPartyAccount;
 import com.ironhack.midterm.dao.users.Role;
 import com.ironhack.midterm.dao.users.User;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter

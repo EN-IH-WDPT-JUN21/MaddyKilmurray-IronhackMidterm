@@ -117,13 +117,4 @@ public class CreditCardAccount extends Account {
             throw new BalanceOutOfBoundsException("That credit limit is out of bounds. Your credit limit must be between 100 and 100000. Please try again.");
         }
     }
-
-    public static void applyMonthlyInterest(CreditCardAccount account) {
-        BigDecimal monthsBetween = new BigDecimal(ChronoUnit.MONTHS.between(
-                YearMonth.from(account.getInterestRateLastApplied()),
-                YearMonth.from(LocalDate.now())
-        ));
-        BigDecimal newBalance = account.getBalance().getAmount().add(account.getInterestRate().getAmount().multiply(monthsBetween));
-        account.setBalance(new Money(newBalance,Currency.getInstance("GBP")));
-    }
 }
