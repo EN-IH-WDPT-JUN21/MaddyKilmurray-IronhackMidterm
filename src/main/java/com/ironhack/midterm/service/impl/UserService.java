@@ -177,17 +177,17 @@ public class UserService implements IUserService {
         }
     }
 
-    private AdminDTO convertToAdminDto(Admin user) {
+    public AdminDTO convertToAdminDto(Admin user) {
         AdminDTO adminDTO = modelMapper.map(user, AdminDTO.class);
         return adminDTO;
     }
 
-    private AccountHolderDTO convertToAccHolderDto(AccountHolder user) {
+    public AccountHolderDTO convertToAccHolderDto(AccountHolder user) {
         AccountHolderDTO accountHolderDTO = modelMapper.map(user, AccountHolderDTO.class);
         return accountHolderDTO;
     }
 
-    private ThirdPartyDTO convertToThirdPartyDto(ThirdParty user) {
+    public ThirdPartyDTO convertToThirdPartyDto(ThirdParty user) {
         ThirdPartyDTO thirdPartyDTO = modelMapper.map(user, ThirdPartyDTO.class);
         return thirdPartyDTO;
     }

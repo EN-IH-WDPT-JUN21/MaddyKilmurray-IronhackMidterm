@@ -1,13 +1,17 @@
 package com.ironhack.midterm.service.impl;
 
+import com.ironhack.midterm.controller.dto.accounts.AccountDTO;
+import com.ironhack.midterm.controller.dto.users.AdminDTO;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.CheckingAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.CreditCardAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.SavingsAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.StudentCheckingAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.ThirdPartyAccount;
+import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
 import com.ironhack.midterm.service.interfaces.IAccountService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +20,9 @@ public class AccountService implements IAccountService {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     public Account createNewCheckingAccount(CheckingAccount account) {
         if (account.getPrimaryOwner().isUnder24()) {
@@ -87,5 +94,10 @@ public class AccountService implements IAccountService {
         ThirdPartyAccount createdAccount = new ThirdPartyAccount(account.getBalance(), account.getPrimaryOwner(),
                 account.getSecondaryOwner(), account.getHashedKey(), account.getName());
         return accountRepository.save(createdAccount);
+    }
+
+    public AccountDTO convertToAccountDto(Account account) {
+        AccountDTO accountDTO = modelMapper.map(account, AccountDTO.class);
+        return accountDTO;
     }
 }

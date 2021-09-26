@@ -12,6 +12,7 @@ import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,9 +21,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -90,6 +93,12 @@ public class UserControllerTest {
         accountRepository.save(testAccount);
     }
 
+    @AfterEach
+    public void tearDown() {
+        accountRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
     @Test
     @DisplayName("Test: GET users. Returns all users as expected")
     void UserController_GetAllUsers_AsExpected() throws Exception{
@@ -104,7 +113,7 @@ public class UserControllerTest {
     void UserController_GetUserByUsername_AsExpected() throws Exception{
         MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/users/" + testAccountHolder1.getUsername()))
                 .andExpect(status().isOk()).andReturn();
-        assertTrue(mvcResult.getResponse().getContentAsString().contains("Ronda"));
+        assertTrue(mvcResult.getResponse().getContentAsString().contains("Ronda Grimes"));
     }
 
     @Test
@@ -179,6 +188,58 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Test: PATCH Username and Password. No user exists so no change.")
+    void UserController_PatchUsernameAndPassword_NotUpdated() throws Exception {
+        String username = "NewUsername";
+        String password = "SuperSecurePassword";
+
+        ResultActions mvcResult = mockMvc.perform(patch("/users/update/logindetails/" + 999)
+                        .param("username",username)
+                        .param("password",password))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH Username. Updates an existing Account with a new username")
+    void UserController_PatchUsername_Updated() throws Exception {
+        String username = "NewUsername";
+
+        MvcResult result = mockMvc.perform(patch("/users/update/username/" + testAccountHolder1.getId())
+                        .param("username",username))
+                .andExpect(status().isOk()).andReturn();
+    }
+
+    @Test
+    @DisplayName("Test: PATCH Username. No user exists so no change.")
+    void UserController_PatchUsername_NotUpdated() throws Exception {
+        String username = "NewUsername";
+
+        ResultActions mvcResult = mockMvc.perform(patch("/users/update/username/" + 999)
+                        .param("username",username))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH Password. Updates an existing Account with a new password")
+    void UserController_PatchPassword_Updated() throws Exception {
+        String password = "SuperSecurePassword";
+
+        MvcResult result = mockMvc.perform(patch("/users/update/password/" + testAccountHolder1.getId())
+                        .param("password",password))
+                .andExpect(status().isOk()).andReturn();
+    }
+
+    @Test
+    @DisplayName("Test: PATCH Password. No user exists so no change.")
+    void UserController_PatchPassword_NotUpdated() throws Exception {
+        String password = "SuperSecurePassword";
+
+        ResultActions mvcResult = mockMvc.perform(patch("/users/update/password/" + 999)
+                        .param("password",password))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException));
+    }
+
+    @Test
     @DisplayName("Test: PATCH Account Holder. Updates Existing Account Holder")
     void UserController_PatchAccountHolder_Updated() throws Exception {
         AccountHolder testHolder = new AccountHolder("",null,null,null,
@@ -233,4 +294,5 @@ public class UserControllerTest {
 
         assertEquals(countAfterRequest,countBeforeRequest - 1);
     }
+
 }

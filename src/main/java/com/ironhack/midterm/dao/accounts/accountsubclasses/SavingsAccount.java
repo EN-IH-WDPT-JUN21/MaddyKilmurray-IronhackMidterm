@@ -60,7 +60,7 @@ public class SavingsAccount extends Account {
         this.savingsInterestLastApplied = creationDate;
     }
 
-    public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey) throws BalanceOutOfBoundsException {
+    public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey) {
         super(balance);
         this.primaryOwner = primaryOwner;
         setBalance(balance);
@@ -69,7 +69,7 @@ public class SavingsAccount extends Account {
         this.savingsInterestLastApplied = creationDate;
     }
 
-    public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) throws BalanceOutOfBoundsException {
+    public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) {
         super(balance);
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;

@@ -28,9 +28,12 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Currency;
+import java.util.List;
 import java.util.Optional;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 
 @Service
@@ -244,33 +247,106 @@ public class TransactionService implements ITransactionService {
         return false;
     }
 
-    public Boolean fraudFound(Account account) {
+    public Boolean fraudFound(Account account, Transaction transaction) {
         LocalDateTime now = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
+        if (account.getPaymentTransactions().size() < 2) {
+            return false;
+        }
         LocalDateTime secondLastTransaction = account.getPaymentTransactions().get(account.getPaymentTransactions().size() -2).getTransactionDate();
         if (now.getDayOfYear() == secondLastTransaction.getDayOfYear() && now.getHour() == secondLastTransaction.getHour() &&
                 now.getMinute() == secondLastTransaction.getMinute() && now.getSecond() == secondLastTransaction.getSecond()) {
             return true;
         }
+        if (account.getCreationDate().compareTo(now.toLocalDate().minusDays(1)) < 0) {
+            return false;
+        }
+        BigDecimal highestDailyTotalMarker = findHighestDailyTotal(account).multiply(BigDecimal.valueOf(1.5));
+        BigDecimal transactionsIn24hrs = transactionTotalInLastDay(account);
+        if (transactionsIn24hrs.compareTo(highestDailyTotalMarker) > 0) {
+            return true;
+        }
+        if (!account.getPaymentTransactions().get(account.getPaymentTransactions().size() - 1).getSuccessful() &&
+                !account.getPaymentTransactions().get(account.getPaymentTransactions().size() - 2).getSuccessful()) {
+            return true;
+        }
+        return false;
+    }
 
+    public BigDecimal findHighestDailyTotal(Account account) {
+        System.out.println("Before size check");
+        if (account.getPaymentTransactions().size() < 1) {
+            return BigDecimal.valueOf(0);
+        }
+        BigDecimal maxTransaction = new BigDecimal(0);
+        BigDecimal workingTotal = new BigDecimal(0);
+        LocalDate checkedTransactionDate = account.getPaymentTransactions().get(0).getTransactionDate().toLocalDate();
+        System.out.println("Before Loop");
+        for (int i = 0; i < account.getPaymentTransactions().size(); i++) {
+            System.out.println("Test " + i);
+            if (account.getPaymentTransactions().get(i).getTransactionDate().toLocalDate().equals(checkedTransactionDate)) {
+                workingTotal.add(account.getPaymentTransactions().get(i).getTransactionAmount());
+            }
+            else {
+                if (workingTotal.compareTo(maxTransaction) > 0) {
+                    maxTransaction = workingTotal;
+                }
+                workingTotal = BigDecimal.valueOf(0);
+                checkedTransactionDate = account.getPaymentTransactions().get(i).getTransactionDate().toLocalDate();
+            }
+        }
+        return maxTransaction;
+    }
+
+    public BigDecimal transactionTotalInLastDay(Account account) {
+        LocalDateTime timeNow = LocalDateTime.now();
+        LocalDateTime timeYesterday = timeNow.minusDays(1);
+        BigDecimal transactionTotal = BigDecimal.valueOf(0);
+        for (int i = 0; i < account.getPaymentTransactions().size(); i++) {
+            if (account.getPaymentTransactions().get(i).getTransactionDate().isBefore(timeNow) &&
+            account.getPaymentTransactions().get(i).getTransactionDate().isAfter(timeYesterday)) {
+                transactionTotal.add(account.getPaymentTransactions().get(i).getTransactionAmount());
+            }
+        }
+        return transactionTotal;
+    }
+
+    public void failedTransaction(Account account, Transaction transaction) {
+        account.getPaymentTransactions().add(transaction);
+        accountRepository.save(account);
+        transaction.setSuccessful(false);
+        transactionRepository.save(transaction);
+    }
+
+    public void successfulTransaction(Account transferAccount, Account receivingAccount, Transaction transaction) {
+        transferAccount.getPaymentTransactions().add(transaction);
+        receivingAccount.getReceivingTransactions().add(transaction);
+        accountRepository.save(transferAccount);
+        accountRepository.save(receivingAccount);
+        transaction.setSuccessful(true);
+        transactionRepository.save(transaction);
     }
 
     public void transferFunds(TransactionDTO transactionDTO) throws BalanceOutOfBoundsException {
         Transaction newTransaction = convertToTransaction(transactionDTO);
         if (newTransaction.getTransferAccount().getStatus().equals(Status.FROZEN) || newTransaction.getReceivingAccount().getStatus().equals(Status.FROZEN)) {
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is frozen, and no transactions can be made.");
         }
         Boolean penaltyCheck = applyPenaltyFee(newTransaction.getTransferAccount(),newTransaction);
-        if (!penaltyCheck) {
+        Boolean fraudFound = fraudFound(newTransaction.getTransferAccount(),newTransaction);
+        if (!penaltyCheck && !fraudFound) {
             newTransaction.getTransferAccount().getBalance().decreaseAmount(newTransaction.getTransactionAmount());
-            newTransaction.getTransferAccount().getPaymentTransactions().add(newTransaction);
             newTransaction.getReceivingAccount().getBalance().increaseAmount(newTransaction.getTransactionAmount());
-            newTransaction.getReceivingAccount().getPaymentTransactions().add(newTransaction);
-            accountRepository.save(newTransaction.getTransferAccount());
-            accountRepository.save(newTransaction.getReceivingAccount());
+            successfulTransaction(newTransaction.getTransferAccount(),newTransaction.getReceivingAccount(),newTransaction);
+        }
+        else if (fraudFound) {
+            newTransaction.getTransferAccount().setStatus(Status.FROZEN);
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Fraud has been identified. Your account has now been frozen.");
         }
         else {
             newTransaction.getTransferAccount().getBalance().decreaseAmount(Constants.PENALTY_FEE);
-            accountRepository.save(newTransaction.getTransferAccount());
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
             throw new BalanceOutOfBoundsException("Insufficient funds available.");
         }
     }
@@ -278,23 +354,28 @@ public class TransactionService implements ITransactionService {
     public void transferFundsAccHolder(String username, TransactionDTO transactionDTO) throws BalanceOutOfBoundsException {
         Transaction newTransaction = convertToTransaction(transactionDTO);
         if (!newTransaction.getTransferAccount().getPrimaryOwner().getUsername().equals(username) && !newTransaction.getTransferAccount().getSecondaryOwner().getUsername().equals(username)) {
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
         }
         if (newTransaction.getTransferAccount().getStatus().equals(Status.FROZEN) || newTransaction.getReceivingAccount().getStatus().equals(Status.FROZEN)) {
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is frozen, and no transactions can be made.");
         }
         Boolean penaltyCheck = applyPenaltyFee(newTransaction.getTransferAccount(),newTransaction);
-        if (!penaltyCheck) {
+        Boolean fraudFound = fraudFound(newTransaction.getTransferAccount(),newTransaction);
+        if (!penaltyCheck && !fraudFound) {
             newTransaction.getTransferAccount().getBalance().decreaseAmount(newTransaction.getTransactionAmount());
-            newTransaction.getTransferAccount().getPaymentTransactions().add(newTransaction);
             newTransaction.getReceivingAccount().getBalance().increaseAmount(newTransaction.getTransactionAmount());
-            newTransaction.getReceivingAccount().getPaymentTransactions().add(newTransaction);
-            accountRepository.save(newTransaction.getTransferAccount());
-            accountRepository.save(newTransaction.getReceivingAccount());
+            successfulTransaction(newTransaction.getTransferAccount(),newTransaction.getReceivingAccount(),newTransaction);
+        }
+        else if (fraudFound) {
+            newTransaction.getTransferAccount().setStatus(Status.FROZEN);
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Fraud has been identified. Your account has now been frozen.");
         }
         else {
             newTransaction.getTransferAccount().getBalance().decreaseAmount(Constants.PENALTY_FEE);
-            accountRepository.save(newTransaction.getTransferAccount());
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
             throw new BalanceOutOfBoundsException("Insufficient funds available.");
         }
     }
@@ -305,26 +386,32 @@ public class TransactionService implements ITransactionService {
         Optional<ThirdParty> secondaryOwner = thirdPartyRepository.findById(newTransaction.getTransferAccount().getSecondaryOwner().getId());
         if ((!primaryOwner.get().getUsername().equals(username) && !secondaryOwner.get().getUsername().equals(username)) ||
                 (!primaryOwner.get().getHashedKey().equals(hashedKey) && !secondaryOwner.get().getHashedKey().equals(hashedKey))) {
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
         }
         if (newTransaction.getTransferAccount().getStatus().equals(Status.FROZEN) || newTransaction.getReceivingAccount().getStatus().equals(Status.FROZEN)) {
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is frozen, and no transactions can be made.");
         }
         if (!hashedKey.equals(findSecretKey(newTransaction.getReceivingAccount()))) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Secret key does not match, access denied.");
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Secret key does not match, access has been denied.");
         }
         Boolean penaltyCheck = applyPenaltyFee(newTransaction.getTransferAccount(),newTransaction);
-        if (!penaltyCheck) {
+        Boolean fraudFound = fraudFound(newTransaction.getTransferAccount(),newTransaction);
+        if (!penaltyCheck && !fraudFound) {
             newTransaction.getTransferAccount().getBalance().decreaseAmount(newTransaction.getTransactionAmount());
-            newTransaction.getTransferAccount().getPaymentTransactions().add(newTransaction);
             newTransaction.getReceivingAccount().getBalance().increaseAmount(newTransaction.getTransactionAmount());
-            newTransaction.getReceivingAccount().getPaymentTransactions().add(newTransaction);
-            accountRepository.save(newTransaction.getTransferAccount());
-            accountRepository.save(newTransaction.getReceivingAccount());
+            successfulTransaction(newTransaction.getTransferAccount(),newTransaction.getReceivingAccount(),newTransaction);
+        }
+        else if (fraudFound) {
+            newTransaction.getTransferAccount().setStatus(Status.FROZEN);
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Fraud has been identified. Your account has now been frozen.");
         }
         else {
             newTransaction.getTransferAccount().getBalance().decreaseAmount(Constants.PENALTY_FEE);
-            accountRepository.save(newTransaction.getTransferAccount());
+            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
             throw new BalanceOutOfBoundsException("Insufficient funds available.");
         }
     }

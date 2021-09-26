@@ -40,6 +40,8 @@ public class Transaction {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Account receivingAccount;
 
+    private Boolean successful;
+
     public Transaction(LocalDateTime timestamp, BigDecimal transactionAmount,
                        Account transferAccount, Account receivingAccount) {
         this.transactionDate = timestamp;

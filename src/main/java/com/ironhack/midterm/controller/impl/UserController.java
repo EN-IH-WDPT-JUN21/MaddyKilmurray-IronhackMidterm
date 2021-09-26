@@ -79,7 +79,7 @@ public class UserController {
 
     @PatchMapping("/users/update/username/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void updateUsernameAndPassword(@PathVariable(name = "id") Long id,
+    public void updateUsername(@PathVariable(name = "id") Long id,
                                           @RequestParam String username) {
         userService.updateUsername(id,username);
     }
