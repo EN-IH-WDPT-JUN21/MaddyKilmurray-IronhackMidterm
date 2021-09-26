@@ -1,6 +1,9 @@
 package com.ironhack.midterm.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ironhack.midterm.controller.dto.TransactionDTO;
 import com.ironhack.midterm.dao.Address;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
@@ -10,7 +13,10 @@ import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
+import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
+import com.ironhack.midterm.repository.accounts.ThirdPartyAccountRepository;
+import com.ironhack.midterm.repository.users.ThirdPartyRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
 import org.hibernate.annotations.Check;
 import org.junit.jupiter.api.AfterEach;
@@ -19,6 +25,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -46,6 +53,9 @@ public class TransactionControllerTest {
     private AccountRepository accountRepository;
 
     @Autowired
+    private ThirdPartyAccountRepository thirdPartyAccountRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -69,7 +79,7 @@ public class TransactionControllerTest {
     private Address address2;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws BalanceOutOfBoundsException {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");
@@ -84,21 +94,24 @@ public class TransactionControllerTest {
         accountHolder3 = new AccountHolder("Will Smith", "WSmith","sm1th",
                 new HashSet<Role>(),LocalDate.of(1980, Month.MARCH, 16),address1,address2,
                 new ArrayList<Account>());
+        testThirdParty = new ThirdParty("Will Smith", "WSmith","sm1th",
+                new HashSet<Role>(),"###hashedkey###");
         userRepository.save(accountHolder);
         userRepository.save(accountHolder2);
         userRepository.save(accountHolder3);
+        userRepository.save(testThirdParty);
 
         testCheckingAccount = new CheckingAccount(new Money(new BigDecimal(55.65),Currency.getInstance("GBP")),accountHolder,"BANANA");
         testStudentCheckingAccount = new StudentCheckingAccount(new Money(new BigDecimal(66.23),Currency.getInstance("GBP")),accountHolder,"BERRY");
-        testSavingsAccount = new SavingsAccount(new Money(new BigDecimal(42.16),Currency.getInstance("GBP")),accountHolder2,"CHERRY");
+        testSavingsAccount = new SavingsAccount(new Money(new BigDecimal(100.00),Currency.getInstance("GBP")),accountHolder2,"CHERRY");
         testCreditCardAccount = new CreditCardAccount(new Money(new BigDecimal(489.54),Currency.getInstance("GBP")),accountHolder3);
-        testThirdPartyAccount = new ThirdPartyAccount(new Money(new BigDecimal(2154.16),Currency.getInstance("GBP")),accountHolder3,"###hashed###",
+        testThirdPartyAccount = new ThirdPartyAccount(new Money(new BigDecimal(2154.16),Currency.getInstance("GBP")),testThirdParty,"###hashed###",
                 "Test Mortgages");
         accountRepository.save(testCheckingAccount);
         accountRepository.save(testStudentCheckingAccount);
         accountRepository.save(testSavingsAccount);
         accountRepository.save(testCreditCardAccount);
-        accountRepository.save(testThirdPartyAccount);
+        thirdPartyAccountRepository.save(testThirdPartyAccount);
     }
 
     @AfterEach
@@ -244,5 +257,54 @@ public class TransactionControllerTest {
         ResultActions mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/accounts/getbalance/thirdparty/" + testThirdPartyAccount.getId())
                         .param("username","NotWSmith"))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH transfer funds, admin route. Transfers funds between accounts")
+    void TransactionController_PatchAdminTransferFunds_Updated() throws Exception {
+        TransactionDTO newTransaction = new TransactionDTO(BigDecimal.valueOf(50.00),testCheckingAccount.getId(),
+                testSavingsAccount.getId());
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(newTransaction);
+
+        MvcResult result = mockMvc.perform(patch("/accounts/admin/transferfunds/")
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("" + testCheckingAccount.getId()));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH transfer funds, accountholder route. Transfers funds between accounts")
+    void TransactionController_PatchAccountHolderTransferFunds_Updated() throws Exception {
+        TransactionDTO newTransaction = new TransactionDTO(BigDecimal.valueOf(50.00),testCheckingAccount.getId(),
+                testSavingsAccount.getId());
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(newTransaction);
+
+        MvcResult result = mockMvc.perform(patch("/accounts/accountholder/transferfunds/" + accountHolder.getUsername())
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("" + testCheckingAccount.getId()));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH transfer funds, third party route. Transfers funds between accounts")
+    void TransactionController_PatchThirdPartyTransferFunds_Updated() throws Exception {
+        TransactionDTO newTransaction = new TransactionDTO(BigDecimal.valueOf(50.00),testThirdPartyAccount.getId(),
+                testSavingsAccount.getId());
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(newTransaction);
+
+        MvcResult result = mockMvc.perform(patch("/accounts/thirdparty/transferfunds/")
+                        .param("username",)
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("" + testCheckingAccount.getId()));
     }
 }

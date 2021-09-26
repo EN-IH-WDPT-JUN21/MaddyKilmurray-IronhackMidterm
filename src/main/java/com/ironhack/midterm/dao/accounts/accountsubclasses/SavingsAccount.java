@@ -26,7 +26,6 @@ public class SavingsAccount extends Account {
 
     private static final String accountType = "Savings Account";
 
-    @NotBlank
     @Column(name = "secret_key")
     private String secretKey;
 

@@ -97,12 +97,12 @@ public class TransactionServiceTest {
         testStudentAccount = new StudentCheckingAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"studentSecretKey");
         testSavingsAccount = new SavingsAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"secretKey");
         testCreditCard = new CreditCardAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1);
-        testThirdPartyAccount = new ThirdPartyAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"hashedKey","Mortgages are us.");
+        testThirdPartyAccount = new ThirdPartyAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testThirdParty,"hashedKey","Mortgages are us.");
         accountRepository.save(testCheckingAccount);
         accountRepository.save(testStudentAccount);
         accountRepository.save(testSavingsAccount);
         accountRepository.save(testCreditCard);
-        accountRepository.save(testThirdPartyAccount);
+        thirdPartyAccountRepository.save(testThirdPartyAccount);
     }
 
     @Test

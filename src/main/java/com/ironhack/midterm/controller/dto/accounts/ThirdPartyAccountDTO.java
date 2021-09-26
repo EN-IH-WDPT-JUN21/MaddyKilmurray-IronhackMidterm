@@ -22,9 +22,9 @@ public class ThirdPartyAccountDTO {
     private Money balance;
 
     @NotNull
-    private AccountHolder primaryOwner;
+    private Long primaryOwnerId;
 
-    private AccountHolder secondaryOwner;
+    private Long secondaryOwnerId;
 
     @NotBlank
     private String hashedKey;

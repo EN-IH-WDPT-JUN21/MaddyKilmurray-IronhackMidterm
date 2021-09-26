@@ -5,6 +5,7 @@ import com.ironhack.midterm.controller.dto.ThirdPartyTransactionDTO;
 import com.ironhack.midterm.controller.dto.TransactionDTO;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
+import com.ironhack.midterm.dao.ThirdPartyTransaction;
 import com.ironhack.midterm.dao.Transaction;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.*;
@@ -28,12 +29,9 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Currency;
-import java.util.List;
 import java.util.Optional;
 
-import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 
 @Service
@@ -127,19 +125,6 @@ public class TransactionService implements ITransactionService {
             foundAccount.get().setBalance(new Money(newBalance,Currency.getInstance("GBP")));
             foundAccount.get().setCreditCardInterestLastApplied(LocalDate.now());
             creditCardAccountRepository.save(foundAccount.get());
-            return convertToMoneyDto(foundAccount.get().getBalance());
-        }
-    }
-
-    public MoneyDTO retrieveThirdPartyBalance(long accountid, String username) {
-        Optional<ThirdPartyAccount> foundAccount = thirdPartyAccountRepository.findById(accountid);
-        if (!foundAccount.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"There is no third party checking account with id " + accountid + ". Please try again.");
-        }
-        if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username) && !foundAccount.get().getSecondaryOwner().getUsername().equals(username)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
-        }
-        else {
             return convertToMoneyDto(foundAccount.get().getBalance());
         }
     }
@@ -380,42 +365,6 @@ public class TransactionService implements ITransactionService {
         }
     }
 
-    public void transferFundsThirdParty(String username, String hashedKey, TransactionDTO transactionDTO) throws BalanceOutOfBoundsException {
-        Transaction newTransaction = convertToTransaction(transactionDTO);
-        Optional<ThirdParty> primaryOwner = thirdPartyRepository.findById(newTransaction.getTransferAccount().getPrimaryOwner().getId());
-        Optional<ThirdParty> secondaryOwner = thirdPartyRepository.findById(newTransaction.getTransferAccount().getSecondaryOwner().getId());
-        if ((!primaryOwner.get().getUsername().equals(username) && !secondaryOwner.get().getUsername().equals(username)) ||
-                (!primaryOwner.get().getHashedKey().equals(hashedKey) && !secondaryOwner.get().getHashedKey().equals(hashedKey))) {
-            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
-        }
-        if (newTransaction.getTransferAccount().getStatus().equals(Status.FROZEN) || newTransaction.getReceivingAccount().getStatus().equals(Status.FROZEN)) {
-            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is frozen, and no transactions can be made.");
-        }
-        if (!hashedKey.equals(findSecretKey(newTransaction.getReceivingAccount()))) {
-            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Secret key does not match, access has been denied.");
-        }
-        Boolean penaltyCheck = applyPenaltyFee(newTransaction.getTransferAccount(),newTransaction);
-        Boolean fraudFound = fraudFound(newTransaction.getTransferAccount(),newTransaction);
-        if (!penaltyCheck && !fraudFound) {
-            newTransaction.getTransferAccount().getBalance().decreaseAmount(newTransaction.getTransactionAmount());
-            newTransaction.getReceivingAccount().getBalance().increaseAmount(newTransaction.getTransactionAmount());
-            successfulTransaction(newTransaction.getTransferAccount(),newTransaction.getReceivingAccount(),newTransaction);
-        }
-        else if (fraudFound) {
-            newTransaction.getTransferAccount().setStatus(Status.FROZEN);
-            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Fraud has been identified. Your account has now been frozen.");
-        }
-        else {
-            newTransaction.getTransferAccount().getBalance().decreaseAmount(Constants.PENALTY_FEE);
-            failedTransaction(newTransaction.getTransferAccount(),newTransaction);
-            throw new BalanceOutOfBoundsException("Insufficient funds available.");
-        }
-    }
-
     public Transaction convertToTransaction(TransactionDTO transactionDTO) {
         Optional<Account> transferAccount = accountRepository.findById(transactionDTO.getTransferAccountId());
         Optional<Account> receivingAccount = accountRepository.findById(transactionDTO.getReceivingAccountId());
@@ -424,31 +373,5 @@ public class TransactionService implements ITransactionService {
         }
         Transaction transaction = new Transaction(transactionDTO.getTransactionAmount(),transferAccount.get(),receivingAccount.get());
         return transaction;
-    }
-
-    public Transaction convertToTransaction(ThirdPartyTransactionDTO transactionDTO) {
-        Optional<Account> transferAccount = accountRepository.findById(transactionDTO.getTransferAccountId());
-        Optional<Account> receivingAccount = accountRepository.findById(transactionDTO.getReceivingAccountId());
-        if (!transferAccount.isPresent() && !receivingAccount.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account not found.");
-        }
-        Transaction transaction = new Transaction(transactionDTO.getTransactionAmount(),transferAccount.get(),receivingAccount.get());
-        return transaction;
-    }
-
-    public String findSecretKey(Account account) {
-        Optional<CheckingAccount> accountCheck = checkingAccountRepository.findById(account.getId());
-        if (accountCheck.isPresent()) {
-            return accountCheck.get().getSecretKey();
-        }
-        Optional<StudentCheckingAccount> accountStudent = studentCheckingAccountRepository.findById(account.getId());
-        if (accountStudent.isPresent()) {
-            return accountStudent.get().getSecretKey();
-        }
-        Optional<SavingsAccount> accountSavings = savingsAccountRepository.findById(account.getId());
-        if (accountSavings.isPresent()) {
-            return accountSavings.get().getSecretKey();
-        }
-        return null;
     }
 }

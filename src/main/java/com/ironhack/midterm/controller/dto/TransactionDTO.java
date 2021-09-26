@@ -21,17 +21,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class TransactionDTO {
 
-    private Long id;
+    protected Long id;
 
-    private LocalDateTime transactionDate;
+    protected LocalDateTime transactionDate;
 
-    private BigDecimal transactionAmount;
-
-    @NotNull
-    private Long transferAccountId;
+    protected BigDecimal transactionAmount;
 
     @NotNull
-    private Long receivingAccountId;
+    protected Long transferAccountId;
+
+    @NotNull
+    protected Long receivingAccountId;
 
     public TransactionDTO(BigDecimal transactionAmount, Long transferAccountId, Long receivingAccountId) {
         this.transactionDate = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
