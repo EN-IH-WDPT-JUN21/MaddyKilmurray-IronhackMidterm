@@ -228,15 +228,12 @@ public class TransactionService implements ITransactionService {
     }
 
     public Boolean penaltyFeeCheck(Account transferAccount, Transaction transaction) {
-        BigDecimal newAccountTotal = transferAccount.getBalance().getAmount().subtract(transaction.getTransactionAmount());
-        if (newAccountTotal.compareTo(BigDecimal.valueOf(0)) < 0) {
-            transferAccount.getBalance().decreaseAmount(Constants.PENALTY_FEE);
+        BigDecimal accountBalance = transferAccount.getBalance().getAmount();
+        BigDecimal transactionTotal = transaction.getTransactionAmount();
+        if (accountBalance.subtract(transactionTotal).signum() == -1) {
             return false;
         }
-        else {
-            transferAccount.setBalance(new Money(newAccountTotal));
-            return true;
-        }
+        return true;
     }
 
 //    public void fraudCheck(Account account, Transactions transaction) {
@@ -253,14 +250,17 @@ public class TransactionService implements ITransactionService {
         if (newTransaction.getTransferAccount().getStatus().equals(Status.FROZEN) || newTransaction.getReceivingAccount().getStatus().equals(Status.FROZEN)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is frozen, and no transactions can be made.");
         }
-
         Boolean penaltyCheck = penaltyFeeCheck(newTransaction.getTransferAccount(),newTransaction);
-        if (penaltyCheck == true) {
+        if (penaltyCheck) {
+            newTransaction.getTransferAccount().getBalance().decreaseAmount(newTransaction.getTransactionAmount());
+            newTransaction.getTransferAccount().getPaymentTransactions().add(newTransaction);
             newTransaction.getReceivingAccount().getBalance().increaseAmount(newTransaction.getTransactionAmount());
+            newTransaction.getReceivingAccount().getPaymentTransactions().add(newTransaction);
             accountRepository.save(newTransaction.getTransferAccount());
             accountRepository.save(newTransaction.getReceivingAccount());
         }
         else {
+            newTransaction.getTransferAccount().getBalance().decreaseAmount(Constants.PENALTY_FEE);
             accountRepository.save(newTransaction.getTransferAccount());
             throw new BalanceOutOfBoundsException("Insufficient funds available.");
         }
@@ -269,7 +269,7 @@ public class TransactionService implements ITransactionService {
     private Transaction convertToTransaction(TransactionDTO transactionDTO) {
         Optional<Account> transferAccount = accountRepository.findById(transactionDTO.getTransferAccountId());
         Optional<Account> receivingAccount = accountRepository.findById(transactionDTO.getReceivingAccountId());
-        if (!transferAccount.isPresent() || !receivingAccount.isPresent()) {
+        if (!transferAccount.isPresent() && !receivingAccount.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account not found.");
         }
         Transaction transaction = new Transaction(transactionDTO.getTransactionAmount(),transferAccount.get(),receivingAccount.get());

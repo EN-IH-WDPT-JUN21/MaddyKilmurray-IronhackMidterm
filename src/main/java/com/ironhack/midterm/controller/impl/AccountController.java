@@ -42,6 +42,12 @@ public class AccountController {
         return userRepository.findByUsername(name);
     }
 
+    @GetMapping("/accounts/byid/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<User> findById(@PathVariable("id") Long id) {
+        return userRepository.findById(id);
+    }
+
     @PostMapping("/accounts/new/checking")
     @ResponseStatus(HttpStatus.CREATED)
     public Account createNewAccount(@RequestBody @Valid CheckingAccount account) {

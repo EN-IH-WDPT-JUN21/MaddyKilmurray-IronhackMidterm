@@ -9,6 +9,7 @@ import lombok.Setter;
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -18,17 +19,19 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class TransactionDTO {
 
-    private long id;
+    private Long id;
 
     private LocalDate transactionDate;
 
     private BigDecimal transactionAmount;
 
-    private long transferAccountId;
+    @NotNull
+    private Long transferAccountId;
 
-    private long receivingAccountId;
+    @NotNull
+    private Long receivingAccountId;
 
-    public TransactionDTO(BigDecimal transactionAmount, int transferAccountId, int receivingAccountId) {
+    public TransactionDTO(BigDecimal transactionAmount, Long transferAccountId, Long receivingAccountId) {
         this.transactionDate = LocalDate.now();
         this.transactionAmount = transactionAmount;
         this.transferAccountId = transferAccountId;

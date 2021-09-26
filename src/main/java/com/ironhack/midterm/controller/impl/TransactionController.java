@@ -59,9 +59,9 @@ public class TransactionController {
     // WRITE THE TRANSACTION CLASS AND DTO AND USE THAT IN THE REQUEST BODY INSTEAD
     @PatchMapping("/accounts/admin/transferfunds/")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void adminTransferFunds(@RequestBody @Valid TransactionDTO transaction) throws BalanceOutOfBoundsException {
+    public Optional<Account> adminTransferFunds(@RequestBody @Valid TransactionDTO transaction) throws BalanceOutOfBoundsException {
         transactionService.transferFunds(transaction);
-//        return accountRepository.findById(transaction.getTransferAccount().getId());
+        return accountRepository.findById(transaction.getTransferAccountId());
     }
 
 

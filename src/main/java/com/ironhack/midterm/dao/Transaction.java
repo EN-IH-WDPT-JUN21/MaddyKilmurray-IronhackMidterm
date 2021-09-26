@@ -1,5 +1,6 @@
 package com.ironhack.midterm.dao;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ironhack.midterm.dao.accounts.Account;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,10 +30,12 @@ public class Transaction {
 
     @ManyToOne
     @JoinColumn(name = "transfer_account_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Account transferAccount;
 
     @ManyToOne
     @JoinColumn(name = "receiving_account_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Account receivingAccount;
 
     public Transaction(LocalDate timestamp, BigDecimal transactionAmount,
