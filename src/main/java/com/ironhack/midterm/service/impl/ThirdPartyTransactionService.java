@@ -2,6 +2,8 @@ package com.ironhack.midterm.service.impl;
 
 import com.ironhack.midterm.controller.dto.MoneyDTO;
 import com.ironhack.midterm.controller.dto.ThirdPartyTransactionDTO;
+import com.ironhack.midterm.controller.dto.accounts.AccountDTO;
+import com.ironhack.midterm.controller.dto.accounts.ThirdPartyAccountDTO;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.ThirdPartyTransaction;
@@ -18,6 +20,7 @@ import com.ironhack.midterm.repository.TransactionRepository;
 import com.ironhack.midterm.repository.accounts.*;
 import com.ironhack.midterm.repository.users.ThirdPartyRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
+import com.ironhack.midterm.service.interfaces.IThirdPartyTransactionService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,7 +34,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
-public class ThirdPartyTransactionService {
+public class ThirdPartyTransactionService implements IThirdPartyTransactionService {
 
     @Autowired
     private ThirdPartyAccountRepository thirdPartyAccountRepository;
@@ -89,37 +92,37 @@ public class ThirdPartyTransactionService {
         transactionRepository.save(transaction);
     }
 
-    public void transferFundsThirdParty(String username, String hashedKey, ThirdPartyTransactionDTO transactionDTO) throws BalanceOutOfBoundsException {
+    public void transferFundsThirdParty(String hashedKey, ThirdPartyTransactionDTO transactionDTO) throws BalanceOutOfBoundsException {
         ThirdPartyTransaction newTransaction = convertToThirdPartyTransaction(transactionDTO);
         Optional<ThirdParty> primaryOwner = thirdPartyRepository.findById(newTransaction.getTransferAccount().getPrimaryOwner().getId());
         Optional<ThirdParty> secondaryOwner = thirdPartyRepository.findById(newTransaction.getTransferAccount().getSecondaryOwner().getId());
         if (!primaryOwner.get().getHashedKey().equals(hashedKey) && !secondaryOwner.get().getHashedKey().equals(hashedKey)) {
-            failedThirdPartyTransaction(newTransaction.getTransferAccount(),newTransaction);
+            failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
         }
         if (newTransaction.getTransferAccount().getStatus().equals(Status.FROZEN) || newTransaction.getReceivingAccount().getStatus().equals(Status.FROZEN)) {
-            failedThirdPartyTransaction(newTransaction.getTransferAccount(),newTransaction);
+            failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is frozen, and no transactions can be made.");
         }
         if (!hashedKey.equals(findSecretKey(newTransaction.getReceivingAccount()))) {
-            failedThirdPartyTransaction(newTransaction.getTransferAccount(),newTransaction);
+            failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Secret key does not match, access has been denied.");
         }
-        Boolean penaltyCheck = applyPenaltyFee(newTransaction.getTransferAccount(),newTransaction);
-        Boolean fraudFound = fraudFound(newTransaction.getTransferAccount(),newTransaction);
+        Boolean penaltyCheck = applyPenaltyFee(newTransaction.getThirdPartyTransferAccount(),newTransaction);
+        Boolean fraudFound = fraudFound(newTransaction.getThirdPartyTransferAccount(),newTransaction);
         if (!penaltyCheck && !fraudFound) {
             newTransaction.getTransferAccount().getBalance().decreaseAmount(newTransaction.getTransactionAmount());
             newTransaction.getReceivingAccount().getBalance().increaseAmount(newTransaction.getTransactionAmount());
-            successfulThirdPartyTransaction(newTransaction.getTransferAccount(),newTransaction.getReceivingAccount(),newTransaction);
+            successfulThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction.getReceivingAccount(),newTransaction);
         }
         else if (fraudFound) {
             newTransaction.getTransferAccount().setStatus(Status.FROZEN);
-            failedThirdPartyTransaction(newTransaction.getTransferAccount(),newTransaction);
+            failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Fraud has been identified. Your account has now been frozen.");
         }
         else {
             newTransaction.getTransferAccount().getBalance().decreaseAmount(Constants.PENALTY_FEE);
-            failedThirdPartyTransaction(newTransaction.getTransferAccount(),newTransaction);
+            failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction);
             throw new BalanceOutOfBoundsException("Insufficient funds available.");
         }
     }
@@ -222,8 +225,13 @@ public class ThirdPartyTransactionService {
         return null;
     }
 
-    private MoneyDTO convertToMoneyDto(Money money) {
+    public MoneyDTO convertToMoneyDto(Money money) {
         MoneyDTO moneyDTO = modelMapper.map(money, MoneyDTO.class);
         return moneyDTO;
+    }
+
+    public ThirdPartyAccountDTO convertToThirdPartyAccountDto(ThirdPartyAccount account) {
+        ThirdPartyAccountDTO thirdPartyAccountDTO = modelMapper.map(account, ThirdPartyAccountDTO.class);
+        return thirdPartyAccountDTO;
     }
 }

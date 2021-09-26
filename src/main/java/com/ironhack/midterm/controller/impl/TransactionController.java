@@ -1,11 +1,15 @@
 package com.ironhack.midterm.controller.impl;
 
 import com.ironhack.midterm.controller.dto.MoneyDTO;
+import com.ironhack.midterm.controller.dto.ThirdPartyTransactionDTO;
 import com.ironhack.midterm.controller.dto.TransactionDTO;
 import com.ironhack.midterm.controller.dto.accounts.AccountDTO;
+import com.ironhack.midterm.controller.dto.accounts.ThirdPartyAccountDTO;
+import com.ironhack.midterm.controller.dto.users.ThirdPartyDTO;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
+import com.ironhack.midterm.repository.accounts.ThirdPartyAccountRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.service.impl.AccountService;
 import com.ironhack.midterm.service.interfaces.IThirdPartyTransactionService;
@@ -28,6 +32,9 @@ public class TransactionController {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private ThirdPartyAccountRepository thirdPartyAccountRepository;
 
     @Autowired
     private IThirdPartyTransactionService thirdPartyTransactionService;
@@ -83,9 +90,9 @@ public class TransactionController {
     // COME BACK TO THIS, MAY NEED TO RESTRUCTURE THIRD PARTY ACCOUNTS
     @PatchMapping("/accounts/thirdparty/transferfunds/")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public AccountDTO thirdPartyTransferFunds(@RequestParam String username, @RequestParam String hashedKey,
-                                          @RequestBody @Valid TransactionDTO transaction) throws BalanceOutOfBoundsException {
-        thirdPartyTransactionService.transferFundsThirdParty(username,hashedKey,transaction);
-        return accountService.convertToAccountDto(accountRepository.findById(transaction.getTransferAccountId()).get());
+    public ThirdPartyAccountDTO thirdPartyTransferFunds(@RequestParam String hashedKey,
+                                                        @RequestBody @Valid ThirdPartyTransactionDTO transaction) throws BalanceOutOfBoundsException {
+        thirdPartyTransactionService.transferFundsThirdParty(hashedKey,transaction);
+        return thirdPartyTransactionService.convertToThirdPartyAccountDto(thirdPartyAccountRepository.findById(transaction.getTransferAccountId()).get());
     }
 }

@@ -68,7 +68,7 @@ public class AccountController {
 
     @PostMapping("/accounts/new/thirdparty")
     @ResponseStatus(HttpStatus.CREATED)
-    public Account createNewAccount(@RequestBody @Valid ThirdPartyAccount account) {
+    public ThirdPartyAccount createNewAccount(@RequestBody @Valid ThirdPartyAccount account) {
         return accountService.createNewThirdPartyAccount(account);
     }
 

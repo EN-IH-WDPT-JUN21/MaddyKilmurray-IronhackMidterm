@@ -301,7 +301,7 @@ public class TransactionControllerTest {
                 .writeValueAsString(newTransaction);
 
         MvcResult result = mockMvc.perform(patch("/accounts/thirdparty/transferfunds/")
-                        .param("username",)
+                        .param("hashedKey","###hashedkey###")
                         .content(body).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isAccepted()).andReturn();
 

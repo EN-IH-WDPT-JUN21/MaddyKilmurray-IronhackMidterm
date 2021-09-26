@@ -21,9 +21,10 @@ import java.time.LocalDateTime;
 public class ThirdPartyTransaction extends Transaction {
 
     @ManyToOne
-    @JoinColumn(name = "transfer_account_id")
+    @JoinColumn(name = "third_party_transfer_account_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private ThirdPartyAccount transferAccount;
+    private ThirdPartyAccount thirdPartyTransferAccount;
+    // currently can't override, need to find solution
 
     private String secretKey;
 
@@ -31,7 +32,7 @@ public class ThirdPartyTransaction extends Transaction {
                        ThirdPartyAccount transferAccount, Account receivingAccount) {
         this.transactionDate = timestamp;
         this.transactionAmount = transactionAmount;
-        this.transferAccount = transferAccount;
+        this.thirdPartyTransferAccount = transferAccount;
         this.receivingAccount = receivingAccount;
     }
 
@@ -39,7 +40,7 @@ public class ThirdPartyTransaction extends Transaction {
                        ThirdPartyAccount transferAccount, Account receivingAccount) {
         this.transactionDate = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
         this.transactionAmount = transactionAmount;
-        this.transferAccount = transferAccount;
+        this.thirdPartyTransferAccount = transferAccount;
         this.receivingAccount = receivingAccount;
     }
 }

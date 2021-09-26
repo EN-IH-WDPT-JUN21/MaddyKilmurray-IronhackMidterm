@@ -10,5 +10,5 @@ public interface IAccountService {
     Account createNewCheckingAccount(CheckingAccount account);
     Account createNewSavingsAccount(SavingsAccount account);
     Account createNewCreditCardAccount(CreditCardAccount account);
-    Account createNewThirdPartyAccount(ThirdPartyAccount account);
+    ThirdPartyAccount createNewThirdPartyAccount(ThirdPartyAccount account);
 }
