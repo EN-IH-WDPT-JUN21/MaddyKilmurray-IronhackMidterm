@@ -15,4 +15,6 @@ public interface ITransactionService {
     MoneyDTO retrieveCreditCardBalance(long accountid, String username);
     MoneyDTO retrieveThirdPartyBalance(long accountid, String username);
     void transferFunds(TransactionDTO transactionDTO) throws BalanceOutOfBoundsException;
+    void transferFundsAccHolder(String username, TransactionDTO transactionDTO) throws BalanceOutOfBoundsException;
+    void transferFundsThirdParty(String username, String hashedKey, TransactionDTO transactionDTO) throws BalanceOutOfBoundsException;
 }

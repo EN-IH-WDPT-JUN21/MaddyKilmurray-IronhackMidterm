@@ -38,7 +38,7 @@ public class ThirdPartyAccount extends Account {
     }
 
     public ThirdPartyAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String hashedKey, String name) {
-        super(balance, primaryOwner, secondaryOwner);
+        super(balance,primaryOwner, secondaryOwner);
         this.hashedKey = generateSecretKey(hashedKey);
         this.name = name;
     }

@@ -1,29 +1,23 @@
 package com.ironhack.midterm.controller.dto;
 
-import com.ironhack.midterm.dao.accounts.Account;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionDTO {
+public class ThirdPartyTransactionDTO {
 
     private Long id;
 
-    private LocalDateTime transactionDate;
+    private LocalDate transactionDate;
 
     private BigDecimal transactionAmount;
 
@@ -33,11 +27,13 @@ public class TransactionDTO {
     @NotNull
     private Long receivingAccountId;
 
-    public TransactionDTO(BigDecimal transactionAmount, Long transferAccountId, Long receivingAccountId) {
-        this.transactionDate = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
+    private String receivingSecretKey;
+
+    public ThirdPartyTransactionDTO(BigDecimal transactionAmount, Long transferAccountId, Long receivingAccountId, String secretKey) {
+        this.transactionDate = LocalDate.now();
         this.transactionAmount = transactionAmount;
         this.transferAccountId = transferAccountId;
         this.receivingAccountId = receivingAccountId;
+        this.receivingSecretKey = secretKey;
     }
-
 }

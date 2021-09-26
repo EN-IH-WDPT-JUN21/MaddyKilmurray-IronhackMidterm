@@ -1,11 +1,11 @@
 package com.ironhack.midterm.enums;
 
 public enum AccountType {
-    CHECKING("CHECKING"),
-    STUDENTCHECKING("STUDENTCHECKING"),
-    CREDITCARD("CREDITCARD"),
-    SAVINGS("SAVINGS"),
-    THIRDPARTY("THIRDPARTY");
+    CHECKING("CheckingAccount"),
+    STUDENTCHECKING("StudentCheckingAccount"),
+    CREDITCARD("CreditCardAccount"),
+    SAVINGS("SavingsAccount"),
+    THIRDPARTY("ThirdPartyAccount");
 
     public final String value;
 

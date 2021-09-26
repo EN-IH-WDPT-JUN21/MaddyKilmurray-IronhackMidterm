@@ -56,13 +56,30 @@ public class TransactionController {
         return transactionService.retrieveThirdPartyBalance(id, username);
     }
 
-    // WRITE THE TRANSACTION CLASS AND DTO AND USE THAT IN THE REQUEST BODY INSTEAD
+    // CONVERT OUTPUT TO DTO
     @PatchMapping("/accounts/admin/transferfunds/")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Optional<Account> adminTransferFunds(@RequestBody @Valid TransactionDTO transaction) throws BalanceOutOfBoundsException {
+    public Account adminTransferFunds(@RequestBody @Valid TransactionDTO transaction) throws BalanceOutOfBoundsException {
         transactionService.transferFunds(transaction);
-        return accountRepository.findById(transaction.getTransferAccountId());
+        return accountRepository.findById(transaction.getTransferAccountId()).get();
     }
 
+    // CONVERT OUTPUT TO DTO
+    @PatchMapping("/accounts/accountholder/transferfunds/{username}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Account accHolderTransferFunds(@PathVariable(name = "username") String username,
+                                      @RequestBody @Valid TransactionDTO transaction) throws BalanceOutOfBoundsException {
+        transactionService.transferFundsAccHolder(username,transaction);
+        return accountRepository.findById(transaction.getTransferAccountId()).get();
+    }
 
+    // CONVERT OUTPUT TO DTO
+    // COME BACK TO THIS, MAY NEED TO RESTRUCTURE THIRD PARTY ACCOUNTS
+    @PatchMapping("/accounts/thirdparty/transferfunds/")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Account thirdPartyTransferFunds(@RequestParam String username, @RequestParam String hashedKey,
+                                          @RequestBody @Valid TransactionDTO transaction) throws BalanceOutOfBoundsException {
+        transactionService.transferFundsThirdParty(username,hashedKey,transaction);
+        return accountRepository.findById(transaction.getTransferAccountId()).get();
+    }
 }

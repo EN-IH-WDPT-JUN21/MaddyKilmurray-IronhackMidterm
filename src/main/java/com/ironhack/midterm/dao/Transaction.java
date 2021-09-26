@@ -9,7 +9,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalUnit;
 
@@ -24,7 +26,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private LocalDate transactionDate;
+    private LocalDateTime transactionDate;
 
     private BigDecimal transactionAmount;
 
@@ -38,7 +40,7 @@ public class Transaction {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Account receivingAccount;
 
-    public Transaction(LocalDate timestamp, BigDecimal transactionAmount,
+    public Transaction(LocalDateTime timestamp, BigDecimal transactionAmount,
                        Account transferAccount, Account receivingAccount) {
         this.transactionDate = timestamp;
         this.transactionAmount = transactionAmount;
@@ -48,7 +50,7 @@ public class Transaction {
 
     public Transaction(BigDecimal transactionAmount,
                        Account transferAccount, Account receivingAccount) {
-        this.transactionDate = LocalDate.now();
+        this.transactionDate = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
         this.transactionAmount = transactionAmount;
         this.transferAccount = transferAccount;
         this.receivingAccount = receivingAccount;

@@ -32,6 +32,8 @@ public class ThirdParty extends User {
     @Column(name = "hashed_key")
     private String hashedKey;
 
+
+
     public ThirdParty(String name, String username, String password, Set<Role> roles, String hashedKey) {
         super(name, username, password, roles);
         this.hashedKey = hashedKey;
