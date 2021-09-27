@@ -40,4 +40,25 @@ public class AccountHolderDTO {
     private Address mailingAddress;
 
     private List<Account> accounts;
+
+    public AccountHolderDTO(String name, String username, String password, Set<Role> roles, LocalDate dateOfBirth, Address primaryAddress, List<Account> accounts) {
+        this.name = name;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+        this.dateOfBirth = dateOfBirth;
+        this.primaryAddress = primaryAddress;
+        this.accounts = accounts;
+    }
+
+    public AccountHolderDTO(String name, String username, String password, Set<Role> roles, LocalDate dateOfBirth, Address primaryAddress, Address mailingAddress, List<Account> accounts) {
+        this.name = name;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+        this.dateOfBirth = dateOfBirth;
+        this.primaryAddress = primaryAddress;
+        this.mailingAddress = mailingAddress;
+        this.accounts = accounts;
+    }
 }

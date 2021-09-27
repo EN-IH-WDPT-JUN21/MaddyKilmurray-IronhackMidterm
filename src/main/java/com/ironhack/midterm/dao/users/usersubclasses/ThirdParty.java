@@ -32,6 +32,13 @@ public class ThirdParty extends User {
     @Column(name = "hashed_key")
     private String hashedKey;
 
+    @OneToMany(
+            mappedBy = "primaryOwner",
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL
+    )
+    private List<ThirdPartyAccount> accounts;
+
     public ThirdParty(String name, String username, String password, Set<Role> roles, String hashedKey) {
         super(name, username, password, roles);
         this.hashedKey = hashedKey;

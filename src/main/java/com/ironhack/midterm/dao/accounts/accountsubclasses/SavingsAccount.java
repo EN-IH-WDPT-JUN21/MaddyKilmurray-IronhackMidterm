@@ -44,7 +44,7 @@ public class SavingsAccount extends Account {
         super(balance);
         this.primaryOwner = primaryOwner;
         setBalance(balance);
-        generateSecretKey(secretKey);
+        this.secretKey = secretKey;
         setInterestRate(interestRate);
         this.savingsInterestLastApplied = creationDate;
     }
@@ -54,7 +54,7 @@ public class SavingsAccount extends Account {
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
         setBalance(balance);
-        generateSecretKey(secretKey);
+        this.secretKey = secretKey;
         setInterestRate(interestRate);
         this.savingsInterestLastApplied = creationDate;
     }
@@ -63,7 +63,7 @@ public class SavingsAccount extends Account {
         super(balance);
         this.primaryOwner = primaryOwner;
         setBalance(balance);
-        generateSecretKey(secretKey);
+        this.secretKey = secretKey;
         this.interestRate = new Money(Constants.SAVINGS_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
         this.savingsInterestLastApplied = creationDate;
     }
@@ -73,7 +73,7 @@ public class SavingsAccount extends Account {
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
         setBalance(balance);
-        generateSecretKey(secretKey);
+        this.secretKey = secretKey;
         this.interestRate = new Money(Constants.SAVINGS_DEFAULT_INTEREST_RATE, Currency.getInstance("GBP"));
         this.savingsInterestLastApplied = creationDate;
     }

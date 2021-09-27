@@ -55,7 +55,7 @@ public class CheckingAccount extends Account {
     public CheckingAccount(Money balance, AccountHolder primaryOwner, String secretKey) {
         super(balance);
         this.primaryOwner = primaryOwner;
-        this.secretKey = generateSecretKey(secretKey);
+        this.secretKey = secretKey;
         this.minimumBalance = new Money(Constants.CHECKING_MINIMUM_BALANCE, Currency.getInstance("GBP"));
         this.monthlyMaintenanceFee = new Money(Constants.CHECKING_MAINTENANCE_FEE,Currency.getInstance("GBP"));
         this.monthlyMaintenanceFeeLastApplied = creationDate;
@@ -65,7 +65,7 @@ public class CheckingAccount extends Account {
         super(balance);
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
-        this.secretKey = generateSecretKey(secretKey);
+        this.secretKey = secretKey;
         this.minimumBalance = new Money(Constants.CHECKING_MINIMUM_BALANCE, Currency.getInstance("GBP"));
         this.monthlyMaintenanceFee = new Money(Constants.CHECKING_MAINTENANCE_FEE,Currency.getInstance("GBP"));
         this.monthlyMaintenanceFeeLastApplied = creationDate;

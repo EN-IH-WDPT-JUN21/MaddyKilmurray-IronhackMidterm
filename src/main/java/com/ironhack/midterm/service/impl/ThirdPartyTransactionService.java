@@ -68,12 +68,19 @@ public class ThirdPartyTransactionService implements IThirdPartyTransactionServi
         if (!foundAccount.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"There is no third party checking account with id " + accountid + ". Please try again.");
         }
-        if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username) && !foundAccount.get().getSecondaryOwner().getUsername().equals(username)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
+        String sUsername = null;
+        if (foundAccount.get().getSecondaryOwner() != null) {
+            sUsername = foundAccount.get().getSecondaryOwner().getUsername();
+            if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username) && !sUsername.equals(username)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
+            }
         }
         else {
-            return convertToMoneyDto(foundAccount.get().getBalance());
+            if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this account.");
+            }
         }
+            return convertToMoneyDto(foundAccount.get().getBalance());
     }
 
     public void failedThirdPartyTransaction(ThirdPartyAccount account, ThirdPartyTransaction transaction) {
@@ -94,36 +101,46 @@ public class ThirdPartyTransactionService implements IThirdPartyTransactionServi
 
     public void transferFundsThirdParty(String hashedKey, ThirdPartyTransactionDTO transactionDTO) throws BalanceOutOfBoundsException {
         ThirdPartyTransaction newTransaction = convertToThirdPartyTransaction(transactionDTO);
-        Optional<ThirdParty> primaryOwner = thirdPartyRepository.findById(newTransaction.getTransferAccount().getPrimaryOwner().getId());
-        Optional<ThirdParty> secondaryOwner = thirdPartyRepository.findById(newTransaction.getTransferAccount().getSecondaryOwner().getId());
-        if (!primaryOwner.get().getHashedKey().equals(hashedKey) && !secondaryOwner.get().getHashedKey().equals(hashedKey)) {
-            failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
+        Optional<ThirdPartyAccount> transferAccount = thirdPartyAccountRepository.findById(newTransaction.getThirdPartyTransferAccount().getId());
+        if (!transferAccount.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Third party account does not exist.");
         }
-        if (newTransaction.getTransferAccount().getStatus().equals(Status.FROZEN) || newTransaction.getReceivingAccount().getStatus().equals(Status.FROZEN)) {
+        if (transferAccount.get().getSecondaryOwner() != null) {
+            if (!transferAccount.get().getPrimaryOwner().getHashedKey().equals(hashedKey) && !transferAccount.get().getSecondaryOwner().getHashedKey().equals(hashedKey)) {
+                failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(), newTransaction);
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this account.");
+            }
+        }
+        if (transferAccount.get().getSecondaryOwner() == null) {
+            if (!transferAccount.get().getPrimaryOwner().getHashedKey().equals(hashedKey)) {
+                failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(), newTransaction);
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this account.");
+            }
+        }
+        if (newTransaction.getThirdPartyTransferAccount().getStatus().equals(Status.FROZEN) || newTransaction.getReceivingAccount().getStatus().equals(Status.FROZEN)) {
             failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is frozen, and no transactions can be made.");
         }
-        if (!hashedKey.equals(findSecretKey(newTransaction.getReceivingAccount()))) {
+        if (!newTransaction.getSecretKey().equals(findSecretKey(newTransaction.getReceivingAccount()))) {
             failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Secret key does not match, access has been denied.");
         }
         Boolean penaltyCheck = applyPenaltyFee(newTransaction.getThirdPartyTransferAccount(),newTransaction);
         Boolean fraudFound = fraudFound(newTransaction.getThirdPartyTransferAccount(),newTransaction);
         if (!penaltyCheck && !fraudFound) {
-            newTransaction.getTransferAccount().getBalance().decreaseAmount(newTransaction.getTransactionAmount());
+            newTransaction.getThirdPartyTransferAccount().getBalance().decreaseAmount(newTransaction.getTransactionAmount());
             newTransaction.getReceivingAccount().getBalance().increaseAmount(newTransaction.getTransactionAmount());
             successfulThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction.getReceivingAccount(),newTransaction);
         }
         else if (fraudFound) {
-            newTransaction.getTransferAccount().setStatus(Status.FROZEN);
+            newTransaction.getThirdPartyTransferAccount().setStatus(Status.FROZEN);
             failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Fraud has been identified. Your account has now been frozen.");
         }
         else {
-            newTransaction.getTransferAccount().getBalance().decreaseAmount(Constants.PENALTY_FEE);
+            newTransaction.getThirdPartyTransferAccount().getBalance().decreaseAmount(Constants.PENALTY_FEE);
             failedThirdPartyTransaction(newTransaction.getThirdPartyTransferAccount(),newTransaction);
-            throw new BalanceOutOfBoundsException("Insufficient funds available.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Insufficient funds available.");
         }
     }
 
@@ -138,7 +155,7 @@ public class ThirdPartyTransactionService implements IThirdPartyTransactionServi
 
     public Boolean fraudFound(ThirdPartyAccount account, Transaction transaction) {
         LocalDateTime now = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
-        if (account.getPaymentTransactions().size() < 2) {
+        if (account.getPaymentTransactions().size() <= 2) {
             return false;
         }
         LocalDateTime secondLastTransaction = account.getPaymentTransactions().get(account.getPaymentTransactions().size() -2).getTransactionDate();
@@ -162,16 +179,13 @@ public class ThirdPartyTransactionService implements IThirdPartyTransactionServi
     }
 
     public BigDecimal findHighestDailyTotal(ThirdPartyAccount account) {
-        System.out.println("Before size check");
         if (account.getPaymentTransactions().size() < 1) {
             return BigDecimal.valueOf(0);
         }
         BigDecimal maxTransaction = new BigDecimal(0);
         BigDecimal workingTotal = new BigDecimal(0);
         LocalDate checkedTransactionDate = account.getPaymentTransactions().get(0).getTransactionDate().toLocalDate();
-        System.out.println("Before Loop");
         for (int i = 0; i < account.getPaymentTransactions().size(); i++) {
-            System.out.println("Test " + i);
             if (account.getPaymentTransactions().get(i).getTransactionDate().toLocalDate().equals(checkedTransactionDate)) {
                 workingTotal.add(account.getPaymentTransactions().get(i).getTransactionAmount());
             }
@@ -205,7 +219,7 @@ public class ThirdPartyTransactionService implements IThirdPartyTransactionServi
         if (!transferAccount.isPresent() && !receivingAccount.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account not found.");
         }
-        ThirdPartyTransaction transaction = new ThirdPartyTransaction(transactionDTO.getTransactionAmount(),transferAccount.get(),receivingAccount.get());
+        ThirdPartyTransaction transaction = new ThirdPartyTransaction(transactionDTO.getTransactionAmount(),transferAccount.get(),receivingAccount.get(),transactionDTO.getReceivingSecretKey());
         return transaction;
     }
 

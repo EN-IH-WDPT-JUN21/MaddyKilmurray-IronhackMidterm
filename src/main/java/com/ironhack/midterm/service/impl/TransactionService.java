@@ -72,8 +72,17 @@ public class TransactionService implements ITransactionService {
         if (!foundAccount.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"There is no checking account with id " + accountid + ". Please try again.");
         }
-        if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username) && !foundAccount.get().getSecondaryOwner().getUsername().equals(username)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
+        String sUsername = null;
+        if (foundAccount.get().getSecondaryOwner() != null) {
+            sUsername = foundAccount.get().getSecondaryOwner().getUsername();
+            if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username) && !sUsername.equals(username)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
+            }
+        }
+        else {
+            if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this account.");
+            }
         }
         BigDecimal newBalance = applyMonthlyMaintenance(foundAccount.get());
         foundAccount.get().setBalance(new Money(newBalance,Currency.getInstance("GBP")));
@@ -100,16 +109,23 @@ public class TransactionService implements ITransactionService {
         if (!foundAccount.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"There is no savings account with id " + accountid + ". Please try again.");
         }
-        if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username) && !foundAccount.get().getSecondaryOwner().getUsername().equals(username)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
+        String sUsername = null;
+        if (foundAccount.get().getSecondaryOwner() != null) {
+            sUsername = foundAccount.get().getSecondaryOwner().getUsername();
+            if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username) && !sUsername.equals(username)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
+            }
         }
         else {
+            if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this account.");
+            }
+        }
             BigDecimal newBalance = applyYearlyInterest(foundAccount.get());
             foundAccount.get().setBalance(new Money(newBalance,Currency.getInstance("GBP")));
             foundAccount.get().setSavingsInterestLastApplied(LocalDate.now());
             savingsAccountRepository.save(foundAccount.get());
             return convertToMoneyDto(foundAccount.get().getBalance());
-        }
     }
 
     public MoneyDTO retrieveCreditCardBalance(long accountid, String username) {
@@ -117,16 +133,23 @@ public class TransactionService implements ITransactionService {
         if (!foundAccount.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"There is no credit card account with id " + accountid + ". Please try again.");
         }
-        if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username) && !foundAccount.get().getSecondaryOwner().getUsername().equals(username)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
+        String sUsername = null;
+        if (foundAccount.get().getSecondaryOwner() != null) {
+            sUsername = foundAccount.get().getSecondaryOwner().getUsername();
+            if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username) && !sUsername.equals(username)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You do not have permission to access this account.");
+            }
         }
         else {
+            if (!foundAccount.get().getPrimaryOwner().getUsername().equals(username)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this account.");
+            }
+        }
             BigDecimal newBalance = applyMonthlyInterest(foundAccount.get());
             foundAccount.get().setBalance(new Money(newBalance,Currency.getInstance("GBP")));
             foundAccount.get().setCreditCardInterestLastApplied(LocalDate.now());
             creditCardAccountRepository.save(foundAccount.get());
             return convertToMoneyDto(foundAccount.get().getBalance());
-        }
     }
 
     private MoneyDTO convertToMoneyDto(Money money) {
@@ -234,7 +257,7 @@ public class TransactionService implements ITransactionService {
 
     public Boolean fraudFound(Account account, Transaction transaction) {
         LocalDateTime now = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
-        if (account.getPaymentTransactions().size() < 2) {
+        if (account.getPaymentTransactions().size() <= 2) {
             return false;
         }
         LocalDateTime secondLastTransaction = account.getPaymentTransactions().get(account.getPaymentTransactions().size() -2).getTransactionDate();
@@ -258,16 +281,13 @@ public class TransactionService implements ITransactionService {
     }
 
     public BigDecimal findHighestDailyTotal(Account account) {
-        System.out.println("Before size check");
         if (account.getPaymentTransactions().size() < 1) {
             return BigDecimal.valueOf(0);
         }
         BigDecimal maxTransaction = new BigDecimal(0);
         BigDecimal workingTotal = new BigDecimal(0);
         LocalDate checkedTransactionDate = account.getPaymentTransactions().get(0).getTransactionDate().toLocalDate();
-        System.out.println("Before Loop");
         for (int i = 0; i < account.getPaymentTransactions().size(); i++) {
-            System.out.println("Test " + i);
             if (account.getPaymentTransactions().get(i).getTransactionDate().toLocalDate().equals(checkedTransactionDate)) {
                 workingTotal.add(account.getPaymentTransactions().get(i).getTransactionAmount());
             }
@@ -296,6 +316,7 @@ public class TransactionService implements ITransactionService {
     }
 
     public void failedTransaction(Account account, Transaction transaction) {
+        account.getBalance().decreaseAmount(Constants.PENALTY_FEE);
         account.getPaymentTransactions().add(transaction);
         accountRepository.save(account);
         transaction.setSuccessful(false);
@@ -330,9 +351,8 @@ public class TransactionService implements ITransactionService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Fraud has been identified. Your account has now been frozen.");
         }
         else {
-            newTransaction.getTransferAccount().getBalance().decreaseAmount(Constants.PENALTY_FEE);
             failedTransaction(newTransaction.getTransferAccount(),newTransaction);
-            throw new BalanceOutOfBoundsException("Insufficient funds available.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Insufficient funds available.");
         }
     }
 
@@ -359,9 +379,8 @@ public class TransactionService implements ITransactionService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Fraud has been identified. Your account has now been frozen.");
         }
         else {
-            newTransaction.getTransferAccount().getBalance().decreaseAmount(Constants.PENALTY_FEE);
             failedTransaction(newTransaction.getTransferAccount(),newTransaction);
-            throw new BalanceOutOfBoundsException("Insufficient funds available.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Insufficient funds available.");
         }
     }
 

@@ -31,13 +31,13 @@ public class StudentCheckingAccount extends Account {
     public StudentCheckingAccount(Money balance, AccountHolder primaryOwner, String secretKey) {
         super(balance);
         this.primaryOwner = primaryOwner;
-        this.secretKey = generateSecretKey(secretKey);
+        this.secretKey = secretKey;
     }
 
     public StudentCheckingAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey) {
         super(balance);
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
-        this.secretKey = generateSecretKey(secretKey);
+        this.secretKey = secretKey;
     }
 }

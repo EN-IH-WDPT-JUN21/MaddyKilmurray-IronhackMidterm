@@ -3,6 +3,7 @@ package com.ironhack.midterm.dao.accounts.accountsubclasses;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
+import com.ironhack.midterm.dao.ThirdPartyTransaction;
 import com.ironhack.midterm.dao.Transaction;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.User;
@@ -42,13 +43,13 @@ public class ThirdPartyAccount {
     protected Money balance;
 
     @ManyToOne
-    @JoinColumn(name = "primary_owner_id")
+    @JoinColumn(name = "third_party_primary_owner_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     protected ThirdParty primaryOwner;
 
 
     @ManyToOne
-    @JoinColumn(name = "secondary_owner_id")
+    @JoinColumn(name = "third_party_secondary_owner_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     protected ThirdParty secondaryOwner;
 
@@ -69,11 +70,11 @@ public class ThirdPartyAccount {
     protected Status status;
 
     @OneToMany(
-            mappedBy = "transferAccount",
+            mappedBy = "thirdPartyTransferAccount",
             fetch = FetchType.EAGER,
             cascade = CascadeType.ALL
     )
-    protected List<Transaction> paymentTransactions;
+    protected List<ThirdPartyTransaction> paymentTransactions;
 
     @OneToMany(
             mappedBy = "receivingAccount",

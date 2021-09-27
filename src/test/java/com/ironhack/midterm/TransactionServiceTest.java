@@ -95,7 +95,7 @@ public class TransactionServiceTest {
 
         testCheckingAccount = new CheckingAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"secretKey");
         testStudentAccount = new StudentCheckingAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"studentSecretKey");
-        testSavingsAccount = new SavingsAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1,"secretKey");
+        testSavingsAccount = new SavingsAccount(new Money(BigDecimal.valueOf(101.00), Currency.getInstance("GBP")),testAccountHolder1,"secretKey");
         testCreditCard = new CreditCardAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testAccountHolder1);
         testThirdPartyAccount = new ThirdPartyAccount(new Money(BigDecimal.valueOf(55.65), Currency.getInstance("GBP")),testThirdParty,"hashedKey","Mortgages are us.");
         accountRepository.save(testCheckingAccount);

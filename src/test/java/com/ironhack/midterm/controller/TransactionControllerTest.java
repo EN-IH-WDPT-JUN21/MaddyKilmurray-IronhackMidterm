@@ -3,6 +3,7 @@ package com.ironhack.midterm.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ironhack.midterm.controller.dto.ThirdPartyTransactionDTO;
 import com.ironhack.midterm.controller.dto.TransactionDTO;
 import com.ironhack.midterm.dao.Address;
 import com.ironhack.midterm.dao.Money;
@@ -37,11 +38,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -103,7 +102,7 @@ public class TransactionControllerTest {
 
         testCheckingAccount = new CheckingAccount(new Money(new BigDecimal(55.65),Currency.getInstance("GBP")),accountHolder,"BANANA");
         testStudentCheckingAccount = new StudentCheckingAccount(new Money(new BigDecimal(66.23),Currency.getInstance("GBP")),accountHolder,"BERRY");
-        testSavingsAccount = new SavingsAccount(new Money(new BigDecimal(100.00),Currency.getInstance("GBP")),accountHolder2,"CHERRY");
+        testSavingsAccount = new SavingsAccount(new Money(new BigDecimal(101.00),Currency.getInstance("GBP")),accountHolder2,"CHERRY");
         testCreditCardAccount = new CreditCardAccount(new Money(new BigDecimal(489.54),Currency.getInstance("GBP")),accountHolder3);
         testThirdPartyAccount = new ThirdPartyAccount(new Money(new BigDecimal(2154.16),Currency.getInstance("GBP")),testThirdParty,"###hashed###",
                 "Test Mortgages");
@@ -117,6 +116,7 @@ public class TransactionControllerTest {
     @AfterEach
     public void tearDown() {
         accountRepository.deleteAll();
+        thirdPartyAccountRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -184,7 +184,7 @@ public class TransactionControllerTest {
         MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/accounts/getbalance/savings/" + testSavingsAccount.getId())
                         .param("username","WhiteB"))
                 .andExpect(status().isOk()).andReturn();
-        assertTrue(mvcResult.getResponse().getContentAsString().contains("42"));
+        assertTrue(mvcResult.getResponse().getContentAsString().contains("101.00"));
     }
 
     @Test
@@ -276,6 +276,46 @@ public class TransactionControllerTest {
     }
 
     @Test
+    @DisplayName("Test: PATCH transfer funds, admin route. Penalty Fee applied, transfer too much")
+    void TransactionController_PatchAdminTransferFunds_PenaltyFeeApplied() throws Exception {
+        BigDecimal balanceBeforeTransaction = testCheckingAccount.getBalance().getAmount();
+        TransactionDTO newTransaction = new TransactionDTO(BigDecimal.valueOf(500000.00),testCheckingAccount.getId(),
+                testSavingsAccount.getId());
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(newTransaction);
+
+        ResultActions mvcResult = mockMvc.perform(patch("/accounts/admin/transferfunds/")
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException));
+
+        Optional<Account> foundAccount = accountRepository.findById(testCheckingAccount.getId());
+        assertEquals(foundAccount.get().getBalance().getAmount(),balanceBeforeTransaction.subtract(BigDecimal.valueOf(40)));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH transfer funds, admin route. Fraud found, multiple transactions")
+    void TransactionController_PatchAdminTransferFunds_FraudFound_TooManyTransactions() throws Exception {
+        TransactionDTO newTransaction = new TransactionDTO(BigDecimal.valueOf(5.00),testCheckingAccount.getId(),
+                testSavingsAccount.getId());
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(newTransaction);
+
+        MvcResult result1 = mockMvc.perform(patch("/accounts/admin/transferfunds/")
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted()).andReturn();
+
+        MvcResult result2 = mockMvc.perform(patch("/accounts/admin/transferfunds/")
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted()).andReturn();
+
+        ResultActions mvcResult = mockMvc.perform(patch("/accounts/admin/transferfunds/")
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException));
+    }
+
+    @Test
     @DisplayName("Test: PATCH transfer funds, accountholder route. Transfers funds between accounts")
     void TransactionController_PatchAccountHolderTransferFunds_Updated() throws Exception {
         TransactionDTO newTransaction = new TransactionDTO(BigDecimal.valueOf(50.00),testCheckingAccount.getId(),
@@ -292,10 +332,50 @@ public class TransactionControllerTest {
     }
 
     @Test
+    @DisplayName("Test: PATCH transfer funds, accountholder route. Penalty Fee applied, transfer too much")
+    void TransactionController_PatchAccountHolderTransferFunds_PenaltyFeeApplied() throws Exception {
+        BigDecimal balanceBeforeTransaction = testCheckingAccount.getBalance().getAmount();
+        TransactionDTO newTransaction = new TransactionDTO(BigDecimal.valueOf(500000.00),testCheckingAccount.getId(),
+                testSavingsAccount.getId());
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(newTransaction);
+
+        ResultActions mvcResult = mockMvc.perform(patch("/accounts/accountholder/transferfunds/" + accountHolder.getUsername())
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException));
+
+        Optional<Account> foundAccount = accountRepository.findById(testCheckingAccount.getId());
+        assertEquals(foundAccount.get().getBalance().getAmount(),balanceBeforeTransaction.subtract(BigDecimal.valueOf(40)));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH transfer funds, accountholder route. Fraud found, multiple transactions")
+    void TransactionController_PatchAccountHolderTransferFunds_FraudFound_TooManyTransactions() throws Exception {
+        TransactionDTO newTransaction = new TransactionDTO(BigDecimal.valueOf(5.00),testCheckingAccount.getId(),
+                testSavingsAccount.getId());
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(newTransaction);
+
+        MvcResult result1 = mockMvc.perform(patch("/accounts/accountholder/transferfunds/" + accountHolder.getUsername())
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted()).andReturn();
+
+        MvcResult result2 = mockMvc.perform(patch("/accounts/accountholder/transferfunds/" + accountHolder.getUsername())
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted()).andReturn();
+
+        ResultActions mvcResult = mockMvc.perform(patch("/accounts/accountholder/transferfunds/" + accountHolder.getUsername())
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException));
+    }
+
+    @Test
     @DisplayName("Test: PATCH transfer funds, third party route. Transfers funds between accounts")
     void TransactionController_PatchThirdPartyTransferFunds_Updated() throws Exception {
-        TransactionDTO newTransaction = new TransactionDTO(BigDecimal.valueOf(50.00),testThirdPartyAccount.getId(),
-                testSavingsAccount.getId());
+        ThirdPartyTransactionDTO newTransaction = new ThirdPartyTransactionDTO(BigDecimal.valueOf(50.00),testThirdPartyAccount.getId(),
+                testSavingsAccount.getId(),"CHERRY");
 
         String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(newTransaction);
@@ -305,6 +385,50 @@ public class TransactionControllerTest {
                         .content(body).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isAccepted()).andReturn();
 
-        assertTrue(result.getResponse().getContentAsString().contains("" + testCheckingAccount.getId()));
+        assertTrue(result.getResponse().getContentAsString().contains("" + testThirdPartyAccount.getId()));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH transfer funds, third party route. Penalty Fee applied, transfer too much")
+    void TransactionController_PatchThirdPartyTransferFunds_PenaltyFeeApplied() throws Exception {
+        BigDecimal balanceBeforeTransaction = testThirdPartyAccount.getBalance().getAmount();
+        ThirdPartyTransactionDTO newTransaction = new ThirdPartyTransactionDTO(BigDecimal.valueOf(50000.00),testThirdPartyAccount.getId(),
+                testSavingsAccount.getId(),"CHERRY");
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(newTransaction);
+
+        ResultActions mvcResult = mockMvc.perform(patch("/accounts/thirdparty/transferfunds/")
+                        .param("hashedKey","###hashedkey###")
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException));
+
+        Optional<ThirdPartyAccount> foundAccount = thirdPartyAccountRepository.findById(testThirdPartyAccount.getId());
+        assertEquals(foundAccount.get().getBalance().getAmount(),balanceBeforeTransaction.subtract(BigDecimal.valueOf(40)));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH transfer funds, third party route. Fraud found, multiple transactions")
+    void TransactionController_PatchThirdPartyTransferFunds_FraudFound_TooManyTransactions() throws Exception {
+        ThirdPartyTransactionDTO newTransaction = new ThirdPartyTransactionDTO(BigDecimal.valueOf(5.00),testThirdPartyAccount.getId(),
+                testSavingsAccount.getId(),"CHERRY");
+
+        String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(newTransaction);
+
+        MvcResult result1 = mockMvc.perform(patch("/accounts/thirdparty/transferfunds/")
+                        .param("hashedKey","###hashedkey###")
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted()).andReturn();
+
+        MvcResult result2 = mockMvc.perform(patch("/accounts/thirdparty/transferfunds/")
+                        .param("hashedKey","###hashedkey###")
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted()).andReturn();
+
+        ResultActions mvcResult = mockMvc.perform(patch("/accounts/thirdparty/transferfunds/")
+                        .param("hashedKey","###hashedkey###")
+                        .content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ResponseStatusException));
     }
 }
