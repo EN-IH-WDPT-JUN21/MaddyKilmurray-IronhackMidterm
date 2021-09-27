@@ -29,7 +29,6 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 @DiscriminatorValue("CHECKING")
 public class CheckingAccount extends Account {
 
-    @NotBlank
     @Column(name = "secret_key")
     private String secretKey;
 

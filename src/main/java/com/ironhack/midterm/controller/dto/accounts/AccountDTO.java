@@ -15,13 +15,24 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class AccountDTO {
 
-    private long id;
+    protected long id;
 
     @NotNull
-    private Money balance;
+    protected Money balance;
 
     @NotNull
-    private AccountHolder primaryOwner;
+    protected Long primaryOwnerId;
 
-    private AccountHolder secondaryOwner;
+    protected Long secondaryOwnerId;
+
+    public AccountDTO(Money balance, Long primaryOwnerId, Long secondaryOwnerId) {
+        this.balance = balance;
+        this.primaryOwnerId = primaryOwnerId;
+        this.secondaryOwnerId = secondaryOwnerId;
+    }
+
+    public AccountDTO(Money balance, Long primaryOwnerId) {
+        this.balance = balance;
+        this.primaryOwnerId = primaryOwnerId;
+    }
 }

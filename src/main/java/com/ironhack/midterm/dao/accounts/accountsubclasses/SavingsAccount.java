@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -24,8 +26,6 @@ import java.util.Currency;
 @DiscriminatorValue("SAVINGS")
 public class SavingsAccount extends Account {
 
-    private static final String accountType = "Savings Account";
-
     @Column(name = "secret_key")
     private String secretKey;
 
@@ -40,7 +40,7 @@ public class SavingsAccount extends Account {
 
     private LocalDate savingsInterestLastApplied = null;
 
-    public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey, Money interestRate) throws BalanceOutOfBoundsException {
+    public SavingsAccount(Money balance, AccountHolder primaryOwner, String secretKey, Money interestRate) {
         super(balance);
         this.primaryOwner = primaryOwner;
         setBalance(balance);
@@ -49,7 +49,7 @@ public class SavingsAccount extends Account {
         this.savingsInterestLastApplied = creationDate;
     }
 
-    public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey, Money interestRate) throws BalanceOutOfBoundsException {
+    public SavingsAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, String secretKey, Money interestRate) {
         super(balance);
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
@@ -84,17 +84,17 @@ public class SavingsAccount extends Account {
             this.balance = balance;
         }
         else {
-            System.out.println("Balance out of bounds exception, work it out.");;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Balance out of bounds. Savings minimum balance must be £100. Please try again.");
         }
     }
 
-    public void setInterestRate(Money interestRate) throws BalanceOutOfBoundsException {
+    public void setInterestRate(Money interestRate) {
         if (interestRate.getAmount().compareTo(Constants.SAVINGS_DEFAULT_INTEREST_RATE) >= 0 &&
                 interestRate.getAmount().compareTo(Constants.SAVINGS_MAXIMUM_INTEREST_RATE) <= -1) {
             this.interestRate = interestRate;
         }
         else {
-            throw new BalanceOutOfBoundsException("Savings Account interest must be between 0.0025 and 0.5. Please try again.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Savings Account interest must be between 0.0025 and 0.5. Please try again.");
         }
     }
 }

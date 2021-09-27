@@ -1,7 +1,6 @@
 package com.ironhack.midterm.controller.impl;
 
-import com.ironhack.midterm.controller.dto.accounts.AccountDTO;
-import com.ironhack.midterm.controller.dto.accounts.ThirdPartyAccountDTO;
+import com.ironhack.midterm.controller.dto.accounts.*;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.CheckingAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.CreditCardAccount;
@@ -17,8 +16,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 public class AccountController {
@@ -38,12 +39,6 @@ public class AccountController {
         return accountRepository.findAll();
     };
 
-//    @GetMapping("/accounts/{username}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<Account> findAllByUsername(@PathVariable("username") @NotNull String name) {
-//        return accountRepository.findByUsername(name);
-//    }
-
     @GetMapping("/accounts/byid/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Optional<User> findById(@PathVariable("id") Long id) {
@@ -52,25 +47,25 @@ public class AccountController {
 
     @PostMapping("/accounts/new/checking")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountDTO createNewAccount(@RequestBody @Valid CheckingAccount account) {
+    public AccountDTO createNewAccount(@RequestBody @Valid CheckingAccountDTO account) {
         return accountService.createNewCheckingAccount(account);
     }
 
     @PostMapping("/accounts/new/savings")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountDTO createNewAccount(@RequestBody @Valid SavingsAccount account) {
+    public AccountDTO createNewAccount(@RequestBody @Valid SavingsAccountDTO account) {
         return accountService.createNewSavingsAccount(account);
     }
 
     @PostMapping("/accounts/new/creditcard")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountDTO createNewAccount(@RequestBody @Valid CreditCardAccount account) {
+    public AccountDTO createNewAccount(@RequestBody @Valid CreditCardAccountDTO account) {
         return accountService.createNewCreditCardAccount(account);
     }
 
     @PostMapping("/accounts/new/thirdparty")
     @ResponseStatus(HttpStatus.CREATED)
-    public ThirdPartyAccountDTO createNewAccount(@RequestBody @Valid ThirdPartyAccount account) {
+    public ThirdPartyAccountDTO createNewAccount(@RequestBody @Valid ThirdPartyAccountDTO account) {
         return accountService.createNewThirdPartyAccount(account);
     }
 

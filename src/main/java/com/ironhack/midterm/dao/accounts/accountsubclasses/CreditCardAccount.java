@@ -43,7 +43,7 @@ public class CreditCardAccount extends Account {
 
     private LocalDate creditCardInterestLastApplied = null;
 
-    public CreditCardAccount(Money balance, AccountHolder primaryOwner, Money creditLimit, Money interestRate) throws BalanceOutOfBoundsException {
+    public CreditCardAccount(Money balance, AccountHolder primaryOwner, Money creditLimit, Money interestRate) {
         super(balance);
         this.primaryOwner = primaryOwner;
         setCreditLimit(creditLimit);
@@ -51,7 +51,7 @@ public class CreditCardAccount extends Account {
         this.creditCardInterestLastApplied = creationDate;
     }
 
-    public CreditCardAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, Money creditLimit, Money interestRate) throws BalanceOutOfBoundsException {
+    public CreditCardAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, Money creditLimit, Money interestRate) {
         super(balance);
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
@@ -77,7 +77,7 @@ public class CreditCardAccount extends Account {
         this.creditCardInterestLastApplied = creationDate;
     }
 
-    public CreditCardAccount(Money balance, AccountHolder primaryOwner, Money creditLimit) throws BalanceOutOfBoundsException {
+    public CreditCardAccount(Money balance, AccountHolder primaryOwner, Money creditLimit) {
         super(balance);
         this.primaryOwner = primaryOwner;
         setCreditLimit(creditLimit);
@@ -85,7 +85,7 @@ public class CreditCardAccount extends Account {
         this.creditCardInterestLastApplied = creationDate;
     }
 
-    public CreditCardAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, Money creditLimit) throws BalanceOutOfBoundsException {
+    public CreditCardAccount(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, Money creditLimit) {
         super(balance);
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
@@ -94,23 +94,23 @@ public class CreditCardAccount extends Account {
         this.creditCardInterestLastApplied = creationDate;
     }
 
-    public void setInterestRate(Money interestRate) throws BalanceOutOfBoundsException {
+    public void setInterestRate(Money interestRate) {
         if (interestRate.getAmount().compareTo(Constants.CCARD_DEFAULT_CREDITLIMIT) >= 0 &&
                 interestRate.getAmount().compareTo(Constants.CCARD_MAXIMUM_CREDITLIMIT) <= -1) {
             this.interestRate = interestRate;
         }
         else {
-            throw new BalanceOutOfBoundsException("Credit card interest rates must be between 0.1 and 0.2. Please try again.");
+            this.interestRate = new Money(Constants.CCARD_DEFAULT_INTEREST_RATE,Currency.getInstance("GBP"));
         }
     }
 
-    public void setCreditLimit(Money creditLimit) throws BalanceOutOfBoundsException {
+    public void setCreditLimit(Money creditLimit) {
         if (creditLimit.getAmount().compareTo(Constants.CCARD_MINIMUM_INTEREST_RATE) >= 0 &&
                 creditLimit.getAmount().compareTo(Constants.CCARD_DEFAULT_INTEREST_RATE) <= -1) {
             this.creditLimit = creditLimit;
         }
         else {
-            throw new BalanceOutOfBoundsException("That credit limit is out of bounds. Your credit limit must be between 100 and 100000. Please try again.");
+            this.creditLimit = new Money(Constants.CCARD_DEFAULT_CREDITLIMIT, Currency.getInstance("GBP"));
         }
     }
 }

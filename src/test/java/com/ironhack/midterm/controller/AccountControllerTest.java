@@ -1,6 +1,10 @@
 package com.ironhack.midterm.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ironhack.midterm.controller.dto.accounts.CheckingAccountDTO;
+import com.ironhack.midterm.controller.dto.accounts.CreditCardAccountDTO;
+import com.ironhack.midterm.controller.dto.accounts.SavingsAccountDTO;
+import com.ironhack.midterm.controller.dto.accounts.ThirdPartyAccountDTO;
 import com.ironhack.midterm.controller.dto.users.AdminDTO;
 import com.ironhack.midterm.dao.Address;
 import com.ironhack.midterm.dao.Money;
@@ -61,6 +65,7 @@ public class AccountControllerTest {
     private AccountHolder accountHolder2;
     private AccountHolder accountHolder3;
     private ThirdParty testThirdParty;
+    private ThirdParty testThirdParty2;
     private CheckingAccount testCheckingAccount;
     private StudentCheckingAccount testStudentCheckingAccount;
     private SavingsAccount testSavingsAccount;
@@ -88,10 +93,13 @@ public class AccountControllerTest {
                 new ArrayList<Account>());
         testThirdParty = new ThirdParty("Will Smith", "WSmith","sm1th",
                 new HashSet<Role>(),"###hashedkey###");
+        testThirdParty2 = new ThirdParty("Willow Smith", "WSmith2","sm1th2",
+                new HashSet<Role>(),"###hashedkey###");
         userRepository.save(accountHolder);
         userRepository.save(accountHolder2);
         userRepository.save(accountHolder3);
         userRepository.save(testThirdParty);
+        userRepository.save(testThirdParty2);
 
         testCheckingAccount = new CheckingAccount(new Money(new BigDecimal(55.65), Currency.getInstance("GBP")),accountHolder,"BANANA");
         testStudentCheckingAccount = new StudentCheckingAccount(new Money(new BigDecimal(66.23),Currency.getInstance("GBP")),accountHolder,"BERRY");
@@ -121,21 +129,12 @@ public class AccountControllerTest {
         assertTrue(mvcResult.getResponse().getContentAsString().contains("BERRY"));
     }
 
-//    @Test
-//    @DisplayName("Test: GET accounts by username. Returns user as expected.")
-//    void AccountController_GetAccountsByUsername_AsExpected() throws Exception{
-//        MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/accounts/" + accountHolder.getUsername()))
-//                .andExpect(status().isOk()).andReturn();
-//        assertTrue(mvcResult.getResponse().getContentAsString().contains("BANANA"));
-//        assertTrue(mvcResult.getResponse().getContentAsString().contains("BERRY"));
-//    }
-
     @Test
-    @DisplayName("Test: GET accounts by id. Returns user as expected.")
+    @DisplayName("Test: GET account by id. Returns account as expected.")
     void AccountController_GetAccountById_AsExpected() throws Exception{
         MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/accounts/byid/" + testCheckingAccount.getId()))
                 .andExpect(status().isOk()).andReturn();
-        assertTrue(mvcResult.getResponse().getContentAsString().contains("BANANA"));
+        assertTrue(mvcResult.getResponse().getContentAsString().contains(testCheckingAccount.getSecretKey()));
     }
 
     @Test
@@ -147,18 +146,130 @@ public class AccountControllerTest {
     }
 
     @Test
-    @DisplayName("Test: POST new Checking Account. Posts new Checking Account")
-    void AccountController_PostCheckingAccount_Created() throws Exception {
-        CheckingAccountDTO testAdmin2 = new AdminDTO("Mr Smith","DownWithNeo","sm1th",new HashSet<Role>());
+    @DisplayName("Test: POST new Checking Account. Posts new Checking Account, one account holder")
+    void AccountController_PostCheckingAccount_Created_OneAccountHolder() throws Exception {
+        CheckingAccountDTO testCheckingAccount2 = new CheckingAccountDTO(new Money(new BigDecimal(102.65), Currency.getInstance("GBP")),accountHolder.getId(),"BABYMETAL");
 
-        String body = objectMapper.writeValueAsString(testAdmin2);
+        String body = objectMapper.writeValueAsString(testCheckingAccount2);
 
         MvcResult result = mockMvc.perform(
-                post("/users/new/admin")
+                post("/accounts/new/checking")
                         .content(body)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isCreated()).andReturn();
 
-        assertTrue(result.getResponse().getContentAsString().contains("DownWithNeo"));
+        assertTrue(result.getResponse().getContentAsString().contains("102.65"));
+    }
+
+    @Test
+    @DisplayName("Test: POST new Checking Account. Posts new Checking Account, two account holders")
+    void AccountController_PostCheckingAccount_Created_TwoAccountHolders() throws Exception {
+        CheckingAccountDTO testCheckingAccount2 = new CheckingAccountDTO(new Money(new BigDecimal(102.65), Currency.getInstance("GBP")),accountHolder.getId(),accountHolder2.getId(),"BABYMETAL");
+
+        String body = objectMapper.writeValueAsString(testCheckingAccount2);
+
+        MvcResult result = mockMvc.perform(
+                post("/accounts/new/checking")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("102.65"));
+    }
+
+    @Test
+    @DisplayName("Test: POST new Savings Account. Posts new Savings Account, one account holder.")
+    void AccountController_PostSavingsAccount_Created_OneAccountHolder() throws Exception {
+        SavingsAccountDTO testSavingsAccount2 = new SavingsAccountDTO(new Money(new BigDecimal(1500.00), Currency.getInstance("GBP")),accountHolder.getId(),"BABYMETAL",new Money(BigDecimal.valueOf(0.2),Currency.getInstance("GBP")));
+
+        String body = objectMapper.writeValueAsString(testSavingsAccount2);
+
+        MvcResult result = mockMvc.perform(
+                post("/accounts/new/savings")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("1500.00"));
+    }
+
+    @Test
+    @DisplayName("Test: POST new Savings Account. Posts new Savings Account, two account holders.")
+    void AccountController_PostSavingsAccount_Created_TwoAccountHolders() throws Exception {
+        SavingsAccountDTO testSavingsAccount2 = new SavingsAccountDTO(new Money(new BigDecimal(1500.00), Currency.getInstance("GBP")),accountHolder.getId(),accountHolder2.getId(),"BABYMETAL",new Money(BigDecimal.valueOf(0.2),Currency.getInstance("GBP")));
+
+        String body = objectMapper.writeValueAsString(testSavingsAccount2);
+
+        MvcResult result = mockMvc.perform(
+                post("/accounts/new/savings")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("1500.00"));
+    }
+
+    @Test
+    @DisplayName("Test: POST new Credit Card Account. Posts new Credit Card Account, one account holder")
+    void AccountController_PostCreditCardAccount_Created_OneAccountHolder() throws Exception {
+        CreditCardAccountDTO testCreditCardAccount2 = new CreditCardAccountDTO(new Money(new BigDecimal(425.00), Currency.getInstance("GBP")),accountHolder.getId(),new Money(BigDecimal.valueOf(500),Currency.getInstance("GBP")),new Money(BigDecimal.valueOf(0.2),Currency.getInstance("GBP")));
+
+        String body = objectMapper.writeValueAsString(testCreditCardAccount2);
+
+        MvcResult result = mockMvc.perform(
+                post("/accounts/new/creditcard")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("425.00"));
+    }
+
+    @Test
+    @DisplayName("Test: POST new Credit Card Account. Posts new Credit Card Account, two account holders.")
+    void AccountController_PostCreditCardAccount_Created_TwoAccountHolders() throws Exception {
+        CreditCardAccountDTO testCreditCardAccount2 = new CreditCardAccountDTO(new Money(new BigDecimal(425.00), Currency.getInstance("GBP")),accountHolder.getId(),accountHolder2.getId(),new Money(BigDecimal.valueOf(500),Currency.getInstance("GBP")),new Money(BigDecimal.valueOf(0.2),Currency.getInstance("GBP")));
+
+        String body = objectMapper.writeValueAsString(testCreditCardAccount2);
+
+        MvcResult result = mockMvc.perform(
+                post("/accounts/new/creditcard")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("425.00"));
+    }
+
+    @Test
+    @DisplayName("Test: POST new Third Party Account. Posts new Third Party Account, one account holder")
+    void AccountController_PostThirdPartyAccount_Created_OneAccountHolder() throws Exception {
+        ThirdPartyAccountDTO testThirdPartyAccount2 = new ThirdPartyAccountDTO(new Money(new BigDecimal(425.00), Currency.getInstance("GBP")),testThirdParty.getId(),"##hashedkey##","MortgageTime");
+
+        String body = objectMapper.writeValueAsString(testThirdPartyAccount2);
+
+        MvcResult result = mockMvc.perform(
+                post("/accounts/new/thirdparty")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("425.00"));
+    }
+
+    @Test
+    @DisplayName("Test: POST new Third Party Account. Posts new Third Party Account, two account holders")
+    void AccountController_PostThirdPartyAccount_Created_TwoAccountHolders() throws Exception {
+        ThirdPartyAccountDTO testThirdPartyAccount2 = new ThirdPartyAccountDTO(new Money(new BigDecimal(425.00), Currency.getInstance("GBP")),testThirdParty.getId(),testThirdParty2.getId(),"##hashedkey##","MortgageTime");
+
+        String body = objectMapper.writeValueAsString(testThirdPartyAccount2);
+
+        MvcResult result = mockMvc.perform(
+                post("/accounts/new/thirdparty")
+                        .content(body)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isCreated()).andReturn();
+
+        assertTrue(result.getResponse().getContentAsString().contains("425.00"));
     }
 }
