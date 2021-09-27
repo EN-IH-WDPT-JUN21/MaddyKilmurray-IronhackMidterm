@@ -110,6 +110,6 @@ public class TransactionServiceTest {
     public void TransactionService_RetrieveCheckingBalance_PositiveCase() {
         Optional<CheckingAccount> foundAccount = checkingAccountRepository.findById(testCheckingAccount.getId());
         Money balance = foundAccount.get().getBalance();
-        assertEquals(balance,new Money(BigDecimal.valueOf(55.65)));
+        assertEquals(balance.getAmount(),BigDecimal.valueOf(55.65));
     }
 }

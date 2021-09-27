@@ -2,33 +2,32 @@
 
 
 
-/users
-/users/{username}
-/users/byid/{id}
-/users/new/admin
-/users/new/accountholder
-/users/new/thirdparty
-/users/update/logindetails/{id}
-/users/update/username/{id}
-/users/update/password/{id}
-/users/update/accountholder/{id}
-/users/update/thirdparty/{id}
-/users/update/admin/{id}
-/users/remove/{id}
+GET - /users - ADMIN
+GET - /users/{username} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+GET - /users/byid/{id} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+POST - /users/new/admin - ADMIN
+POST - /users/new/accountholder - ADMIN
+POST - /users/new/thirdparty - ADMIN
+PATCH - /users/update/logindetails/{id} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+PATCH - /users/update/username/{id} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+PATCH - /users/update/password/{id} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+PATCH - /users/update/accountholder/{id} - ADMIN, ACCOUNTHOLDER (with username)
+PATCH - /users/update/thirdparty/{id} - ADMIN, THIRDPARTY (with secret key)
+PATCH - /users/update/admin/{id} - ADMIN
+DELETE - /users/remove/{id} - ADMIN
 
-/accounts
-/accounts/{username}
-/accounts/byid/{id}
-/accounts/new/checking
-/accounts/new/savings
-/accounts/new/creditcard
-/accounts/new/thirdparty
+GET - /accounts - ADMIN
+GET - /accounts/byid/{id} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+POST - /accounts/new/checking - ADMIN
+POST - /accounts/new/savings - ADMIN
+POST - /accounts/new/creditcard - ADMIN
+POST - /accounts/new/thirdparty - ADMIN
 
-/accounts/getbalance/checking/{account_id}
-/accounts/getbalance/studentchecking/{account_id}
-/accounts/getbalance/savings/{account_id}
-/accounts/getbalance/creditcard/{account_id}
-/accounts/getbalance/thirdparty/{account_id}
-/accounts/admin/transferfunds/
-/accounts/accountholder/transferfunds/{username}
-/accounts/thirdparty/transferfunds/
+/accounts/getbalance/checking/{account_id} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+/accounts/getbalance/studentchecking/{account_id} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+/accounts/getbalance/savings/{account_id} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+/accounts/getbalance/creditcard/{account_id} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+/accounts/getbalance/thirdparty/{account_id} - ADMIN, ACCOUNTHOLDER (with username, their account only), THIRDPARTY (with secret key, their account only)
+/accounts/admin/transferfunds/ - ADMIN
+/accounts/accountholder/transferfunds/{username} - ADMIN, ACCOUNTHOLDER (with username, their account only)
+/accounts/thirdparty/transferfunds/ - ADMIN, THIRDPARTY (with secret key, their account only)

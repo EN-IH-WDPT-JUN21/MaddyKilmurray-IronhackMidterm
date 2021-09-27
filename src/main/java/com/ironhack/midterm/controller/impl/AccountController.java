@@ -41,8 +41,9 @@ public class AccountController {
 
     @GetMapping("/accounts/byid/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<User> findById(@PathVariable("id") Long id) {
-        return userRepository.findById(id);
+    public Account findById(@PathVariable("id") Long id) {
+        Optional<Account> foundAccount = accountRepository.findById(id);
+        return (foundAccount.isPresent() ? foundAccount.get() : null);
     }
 
     @PostMapping("/accounts/new/checking")
@@ -68,6 +69,4 @@ public class AccountController {
     public ThirdPartyAccountDTO createNewAccount(@RequestBody @Valid ThirdPartyAccountDTO account) {
         return accountService.createNewThirdPartyAccount(account);
     }
-
-
 }

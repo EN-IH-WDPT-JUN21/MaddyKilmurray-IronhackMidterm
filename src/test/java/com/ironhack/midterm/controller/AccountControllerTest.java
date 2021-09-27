@@ -142,7 +142,7 @@ public class AccountControllerTest {
     void AccountController_GetAccountById_NegativeResult() throws Exception{
         MvcResult mvcResult = mockMvc.perform( MockMvcRequestBuilders.get("/accounts/byid/" + 999))
                 .andExpect(status().isOk()).andReturn();
-        assertTrue(mvcResult.getResponse().getContentAsString().contains("null"));
+        assertEquals(mvcResult.getResponse().getContentAsString(),(""));
     }
 
     @Test
