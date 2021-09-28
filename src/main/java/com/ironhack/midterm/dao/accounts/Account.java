@@ -111,10 +111,4 @@ public class Account {
         this.paymentTransactions = new ArrayList<>();
         this.receivingTransactions = new ArrayList<>();
     }
-
-    public String generateSecretKey(String secretKey) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        secretKey = encoder.encode(secretKey);
-        return secretKey;
-    }
 }

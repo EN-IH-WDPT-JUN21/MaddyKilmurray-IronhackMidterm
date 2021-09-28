@@ -110,10 +110,4 @@ public class ThirdPartyAccount {
         this.hashedKey = hashedKey;
         this.name = name;
     }
-
-    public String generateHashedKey(String secretKey) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        secretKey = encoder.encode(secretKey);
-        return secretKey;
-    }
 }

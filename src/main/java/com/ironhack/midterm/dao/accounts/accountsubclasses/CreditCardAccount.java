@@ -94,8 +94,8 @@ public class CreditCardAccount extends Account {
     }
 
     public void setInterestRate(Money interestRate) {
-        if (interestRate.getAmount().compareTo(Constants.CCARD_DEFAULT_CREDITLIMIT) >= 0 &&
-                interestRate.getAmount().compareTo(Constants.CCARD_MAXIMUM_CREDITLIMIT) <= -1) {
+        if (interestRate.getAmount().compareTo(Constants.CCARD_MINIMUM_INTEREST_RATE) >= 0 &&
+                interestRate.getAmount().compareTo(Constants.CCARD_DEFAULT_INTEREST_RATE) <= -1) {
             this.interestRate = interestRate;
         }
         else {
@@ -104,8 +104,8 @@ public class CreditCardAccount extends Account {
     }
 
     public void setCreditLimit(Money creditLimit) {
-        if (creditLimit.getAmount().compareTo(Constants.CCARD_MINIMUM_INTEREST_RATE) >= 0 &&
-                creditLimit.getAmount().compareTo(Constants.CCARD_DEFAULT_INTEREST_RATE) <= -1) {
+        if (creditLimit.getAmount().compareTo(Constants.CCARD_DEFAULT_CREDITLIMIT) >= 0 &&
+                creditLimit.getAmount().compareTo(Constants.CCARD_MAXIMUM_CREDITLIMIT) <= -1) {
             this.creditLimit = creditLimit;
         }
         else {
