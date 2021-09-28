@@ -1,9 +1,8 @@
 package com.ironhack.midterm.service.impl;
 
 import com.ironhack.midterm.dao.users.User;
-import com.ironhack.midterm.repository.UserRepository;
+import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.security.CustomUserDetails;
-import com.ironhack.midterm.service.interfaces.ICustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,4 +28,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         CustomUserDetails customUserDetails = new CustomUserDetails(aUser.get());
         return customUserDetails;
     }
+
+
 }

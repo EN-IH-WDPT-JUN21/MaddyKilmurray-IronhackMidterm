@@ -1,10 +1,11 @@
-package com.ironhack.midterm.dao.accounts;
+package com.ironhack.midterm.dao.accounts.accountsubclasses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
+import com.ironhack.midterm.dao.transactions.ThirdPartyTransaction;
 import com.ironhack.midterm.dao.transactions.Transaction;
-import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
+import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
 import com.ironhack.midterm.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,10 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="account_type",
-        discriminatorType = DiscriminatorType.STRING)
-public class Account {
+public class ThirdPartyAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,15 +40,15 @@ public class Account {
     protected Money balance;
 
     @ManyToOne
-    @JoinColumn(name = "primary_owner_id")
+    @JoinColumn(name = "third_party_primary_owner_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    protected AccountHolder primaryOwner;
+    protected ThirdParty primaryOwner;
 
 
     @ManyToOne
-    @JoinColumn(name = "secondary_owner_id")
+    @JoinColumn(name = "third_party_secondary_owner_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    protected AccountHolder secondaryOwner;
+    protected ThirdParty secondaryOwner;
 
     @NotNull
     @Column(name = "penalty_fee")
@@ -69,11 +67,11 @@ public class Account {
     protected Status status;
 
     @OneToMany(
-            mappedBy = "transferAccount",
+            mappedBy = "thirdPartyTransferAccount",
             fetch = FetchType.EAGER,
             cascade = CascadeType.ALL
     )
-    protected List<Transaction> paymentTransactions;
+    protected List<ThirdPartyTransaction> paymentTransactions;
 
     @OneToMany(
             mappedBy = "receivingAccount",
@@ -82,16 +80,13 @@ public class Account {
     )
     protected List<Transaction> receivingTransactions;
 
-    public Account(Money balance) {
-        this.balance = balance;
-        this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
-        this.creationDate = LocalDate.now();
-        this.status = Status.ACTIVE;
-        this.paymentTransactions = new ArrayList<>();
-        this.receivingTransactions = new ArrayList<>();
-    }
+    @NotNull
+    private String hashedKey;
 
-    public Account(Money balance, AccountHolder primaryOwner) {
+    @NotNull
+    private String name;
+
+    public ThirdPartyAccount(Money balance, ThirdParty primaryOwner, String hashedKey, String name) {
         this.balance = balance;
         this.primaryOwner = primaryOwner;
         this.penaltyFee = new Money(Constants.PENALTY_FEE, Currency.getInstance("GBP"));
@@ -99,9 +94,11 @@ public class Account {
         this.status = Status.ACTIVE;
         this.paymentTransactions = new ArrayList<>();
         this.receivingTransactions = new ArrayList<>();
+        this.hashedKey = hashedKey;
+        this.name = name;
     }
 
-    public Account(Money balance, AccountHolder primaryOwner, AccountHolder secondaryOwner) {
+    public ThirdPartyAccount(Money balance, ThirdParty primaryOwner, ThirdParty secondaryOwner, String hashedKey, String name) {
         this.balance = balance;
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
@@ -110,9 +107,11 @@ public class Account {
         this.status = Status.ACTIVE;
         this.paymentTransactions = new ArrayList<>();
         this.receivingTransactions = new ArrayList<>();
+        this.hashedKey = hashedKey;
+        this.name = name;
     }
 
-    public String generateSecretKey(String secretKey) {
+    public String generateHashedKey(String secretKey) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
         secretKey = encoder.encode(secretKey);
         return secretKey;
