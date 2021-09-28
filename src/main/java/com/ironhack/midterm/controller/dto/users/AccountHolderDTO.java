@@ -29,8 +29,6 @@ public class AccountHolderDTO {
     private String username;
     private String password;
 
-    private Set<Role> roles;
-
     @NotNull
     private LocalDate dateOfBirth;
 
@@ -41,21 +39,19 @@ public class AccountHolderDTO {
 
     private List<Account> accounts;
 
-    public AccountHolderDTO(String name, String username, String password, Set<Role> roles, LocalDate dateOfBirth, Address primaryAddress, List<Account> accounts) {
+    public AccountHolderDTO(String name, String username, String password, LocalDate dateOfBirth, Address primaryAddress, List<Account> accounts) {
         this.name = name;
         this.username = username;
         this.password = password;
-        this.roles = roles;
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = primaryAddress;
         this.accounts = accounts;
     }
 
-    public AccountHolderDTO(String name, String username, String password, Set<Role> roles, LocalDate dateOfBirth, Address primaryAddress, Address mailingAddress, List<Account> accounts) {
+    public AccountHolderDTO(String name, String username, String password, LocalDate dateOfBirth, Address primaryAddress, Address mailingAddress, List<Account> accounts) {
         this.name = name;
         this.username = username;
         this.password = password;
-        this.roles = roles;
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = primaryAddress;
         this.mailingAddress = mailingAddress;

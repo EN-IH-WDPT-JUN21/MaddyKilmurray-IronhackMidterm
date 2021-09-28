@@ -1,4 +1,4 @@
-package com.ironhack.midterm.dao;
+package com.ironhack.midterm.dao.transactions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ironhack.midterm.dao.accounts.Account;

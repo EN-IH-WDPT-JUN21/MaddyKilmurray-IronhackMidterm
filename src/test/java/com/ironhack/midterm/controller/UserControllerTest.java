@@ -130,7 +130,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test: POST new Admin. Posts new Admin")
     void UserController_PostAdmin_Created() throws Exception {
-        AdminDTO testAdmin2 = new AdminDTO("Mr Smith","DownWithNeo","sm1th",new HashSet<Role>());
+        AdminDTO testAdmin2 = new AdminDTO("Mr Smith","DownWithNeo","sm1th");
 
         String body = objectMapper.writeValueAsString(testAdmin2);
 
@@ -146,7 +146,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test: POST new AccountHolder. Posts new AccountHolder")
     void UserController_PostAccountHolder_Created() throws Exception {
-        AccountHolderDTO testHolder = new AccountHolderDTO("Mr Smith","DownWithNeo","sm1th",new HashSet<Role>(),
+        AccountHolderDTO testHolder = new AccountHolderDTO("Mr Smith","DownWithNeo","sm1th",
                 LocalDate.of(1970, 8, 26),address1,address2,new ArrayList<Account>());
 
         String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -165,7 +165,7 @@ public class UserControllerTest {
     @DisplayName("Test: POST new ThirdParty. Posts new ThirdParty")
     void UserController_PostThirdParty_Created() throws Exception {
         ThirdPartyDTO testHolder = new ThirdPartyDTO("Mr Smith","DownWithNeo","sm1th",
-                new HashSet<Role>(),"##hashed##");
+                "##hashed##");
 
         String body = objectMapper.writeValueAsString(testHolder);
 
@@ -245,7 +245,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test: PATCH Account Holder. Updates Existing Account Holder")
     void UserController_PatchAccountHolder_Updated() throws Exception {
-        AccountHolderDTO testHolder = new AccountHolderDTO("",null,null,null,
+        AccountHolderDTO testHolder = new AccountHolderDTO("",null,null,
                 LocalDate.of(2002, 8, 15),address1,null,null);
 
         String body = objectMapper.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -261,7 +261,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test: PATCH Third Party. Updates Existing Third Party")
     void UserController_PatchThirdParty_Updated() throws Exception {
-        ThirdPartyDTO testHolder = new ThirdPartyDTO("neo","TakeTheBluePill",null,
+        ThirdPartyDTO testHolder = new ThirdPartyDTO("neo","TakeTheBluePill",
                 null,"bluepill");
 
         String body = objectMapper.writeValueAsString(testHolder);
@@ -276,7 +276,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test: PATCH admin. Updates Existing admin")
     void UserController_PatchAdmin_Updated() throws Exception {
-        AdminDTO testAdmin2 = new AdminDTO("","LindaR",null,null);
+        AdminDTO testAdmin2 = new AdminDTO("","LindaR",null);
 
         String body = objectMapper.writeValueAsString(testAdmin2);
 

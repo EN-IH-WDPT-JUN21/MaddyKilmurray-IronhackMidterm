@@ -4,7 +4,6 @@ import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
-import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Currency;

@@ -1,22 +1,19 @@
 package com.ironhack.midterm.service.impl;
 
 import com.ironhack.midterm.controller.dto.MoneyDTO;
-import com.ironhack.midterm.controller.dto.ThirdPartyTransactionDTO;
-import com.ironhack.midterm.controller.dto.accounts.AccountDTO;
+import com.ironhack.midterm.controller.dto.transactions.ThirdPartyTransactionDTO;
 import com.ironhack.midterm.controller.dto.accounts.ThirdPartyAccountDTO;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.dao.ThirdPartyTransaction;
-import com.ironhack.midterm.dao.Transaction;
+import com.ironhack.midterm.dao.transactions.ThirdPartyTransaction;
+import com.ironhack.midterm.dao.transactions.Transaction;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.CheckingAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.SavingsAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.StudentCheckingAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.ThirdPartyAccount;
-import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
 import com.ironhack.midterm.enums.Status;
-import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
-import com.ironhack.midterm.repository.TransactionRepository;
+import com.ironhack.midterm.repository.transactions.TransactionRepository;
 import com.ironhack.midterm.repository.accounts.*;
 import com.ironhack.midterm.repository.users.ThirdPartyRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
@@ -99,7 +96,7 @@ public class ThirdPartyTransactionService implements IThirdPartyTransactionServi
         transactionRepository.save(transaction);
     }
 
-    public void transferFundsThirdParty(String hashedKey, ThirdPartyTransactionDTO transactionDTO) throws BalanceOutOfBoundsException {
+    public void transferFundsThirdParty(String hashedKey, ThirdPartyTransactionDTO transactionDTO) {
         ThirdPartyTransaction newTransaction = convertToThirdPartyTransaction(transactionDTO);
         Optional<ThirdPartyAccount> transferAccount = thirdPartyAccountRepository.findById(newTransaction.getThirdPartyTransferAccount().getId());
         if (!transferAccount.isPresent()) {

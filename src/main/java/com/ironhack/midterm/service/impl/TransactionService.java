@@ -1,18 +1,14 @@
 package com.ironhack.midterm.service.impl;
 
 import com.ironhack.midterm.controller.dto.MoneyDTO;
-import com.ironhack.midterm.controller.dto.ThirdPartyTransactionDTO;
-import com.ironhack.midterm.controller.dto.TransactionDTO;
+import com.ironhack.midterm.controller.dto.transactions.TransactionDTO;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.dao.ThirdPartyTransaction;
-import com.ironhack.midterm.dao.Transaction;
+import com.ironhack.midterm.dao.transactions.Transaction;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.*;
-import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
 import com.ironhack.midterm.enums.Status;
-import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
-import com.ironhack.midterm.repository.TransactionRepository;
+import com.ironhack.midterm.repository.transactions.TransactionRepository;
 import com.ironhack.midterm.repository.accounts.*;
 import com.ironhack.midterm.repository.users.ThirdPartyRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
@@ -332,7 +328,7 @@ public class TransactionService implements ITransactionService {
         transactionRepository.save(transaction);
     }
 
-    public void transferFunds(TransactionDTO transactionDTO) throws BalanceOutOfBoundsException {
+    public void transferFunds(TransactionDTO transactionDTO) {
         Transaction newTransaction = convertToTransaction(transactionDTO);
         if (newTransaction.getTransferAccount().getStatus().equals(Status.FROZEN) || newTransaction.getReceivingAccount().getStatus().equals(Status.FROZEN)) {
             failedTransaction(newTransaction.getTransferAccount(),newTransaction);
@@ -356,7 +352,7 @@ public class TransactionService implements ITransactionService {
         }
     }
 
-    public void transferFundsAccHolder(String username, TransactionDTO transactionDTO) throws BalanceOutOfBoundsException {
+    public void transferFundsAccHolder(String username, TransactionDTO transactionDTO) {
         Transaction newTransaction = convertToTransaction(transactionDTO);
         if (!newTransaction.getTransferAccount().getPrimaryOwner().getUsername().equals(username) && !newTransaction.getTransferAccount().getSecondaryOwner().getUsername().equals(username)) {
             failedTransaction(newTransaction.getTransferAccount(),newTransaction);

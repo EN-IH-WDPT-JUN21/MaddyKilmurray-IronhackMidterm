@@ -1,13 +1,10 @@
 package com.ironhack.midterm.controller.impl;
 
 import com.ironhack.midterm.controller.dto.MoneyDTO;
-import com.ironhack.midterm.controller.dto.ThirdPartyTransactionDTO;
-import com.ironhack.midterm.controller.dto.TransactionDTO;
+import com.ironhack.midterm.controller.dto.transactions.ThirdPartyTransactionDTO;
+import com.ironhack.midterm.controller.dto.transactions.TransactionDTO;
 import com.ironhack.midterm.controller.dto.accounts.AccountDTO;
 import com.ironhack.midterm.controller.dto.accounts.ThirdPartyAccountDTO;
-import com.ironhack.midterm.controller.dto.users.ThirdPartyDTO;
-import com.ironhack.midterm.dao.accounts.Account;
-import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
 import com.ironhack.midterm.repository.accounts.ThirdPartyAccountRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
@@ -19,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 @RestController
 public class TransactionController {
@@ -56,7 +52,7 @@ public class TransactionController {
 
     @GetMapping("/accounts/getbalance/savings/{account_id}")
     @ResponseStatus(HttpStatus.OK)
-    public MoneyDTO getSavingsBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) throws BalanceOutOfBoundsException {
+    public MoneyDTO getSavingsBalance(@PathVariable(name = "account_id") long id, @RequestParam String username) {
         return transactionService.retrieveSavingsBalance(id, username);
     }
 
@@ -74,7 +70,7 @@ public class TransactionController {
 
     @PatchMapping("/accounts/admin/transferfunds/")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public AccountDTO adminTransferFunds(@RequestBody @Valid TransactionDTO transaction) throws BalanceOutOfBoundsException {
+    public AccountDTO adminTransferFunds(@RequestBody @Valid TransactionDTO transaction) {
         transactionService.transferFunds(transaction);
         return accountService.convertToAccountDto(accountRepository.findById(transaction.getTransferAccountId()).get());
     }
@@ -82,16 +78,15 @@ public class TransactionController {
     @PatchMapping("/accounts/accountholder/transferfunds/{username}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public AccountDTO accHolderTransferFunds(@PathVariable(name = "username") String username,
-                                      @RequestBody @Valid TransactionDTO transaction) throws BalanceOutOfBoundsException {
+                                      @RequestBody @Valid TransactionDTO transaction) {
         transactionService.transferFundsAccHolder(username,transaction);
         return accountService.convertToAccountDto(accountRepository.findById(transaction.getTransferAccountId()).get());
     }
 
-    // COME BACK TO THIS, MAY NEED TO RESTRUCTURE THIRD PARTY ACCOUNTS
     @PatchMapping("/accounts/thirdparty/transferfunds/")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ThirdPartyAccountDTO thirdPartyTransferFunds(@RequestParam String hashedKey,
-                                                        @RequestBody @Valid ThirdPartyTransactionDTO transaction) throws BalanceOutOfBoundsException {
+                                                        @RequestBody @Valid ThirdPartyTransactionDTO transaction) {
         thirdPartyTransactionService.transferFundsThirdParty(hashedKey,transaction);
         return thirdPartyTransactionService.convertToThirdPartyAccountDto(thirdPartyAccountRepository.findById(transaction.getTransferAccountId()).get());
     }

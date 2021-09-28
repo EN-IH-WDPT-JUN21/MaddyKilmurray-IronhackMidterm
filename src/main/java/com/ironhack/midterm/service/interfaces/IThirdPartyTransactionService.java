@@ -1,15 +1,13 @@
 package com.ironhack.midterm.service.interfaces;
 
 import com.ironhack.midterm.controller.dto.MoneyDTO;
-import com.ironhack.midterm.controller.dto.ThirdPartyTransactionDTO;
-import com.ironhack.midterm.controller.dto.TransactionDTO;
+import com.ironhack.midterm.controller.dto.transactions.ThirdPartyTransactionDTO;
 import com.ironhack.midterm.controller.dto.accounts.ThirdPartyAccountDTO;
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.dao.ThirdPartyTransaction;
-import com.ironhack.midterm.dao.Transaction;
+import com.ironhack.midterm.dao.transactions.ThirdPartyTransaction;
+import com.ironhack.midterm.dao.transactions.Transaction;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.ThirdPartyAccount;
-import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 
 import java.math.BigDecimal;
 
@@ -23,7 +21,7 @@ public interface IThirdPartyTransactionService {
     Boolean applyPenaltyFee(ThirdPartyAccount transferAccount, Transaction transaction);
     void successfulThirdPartyTransaction(ThirdPartyAccount transferAccount, Account receivingAccount, ThirdPartyTransaction transaction);
     void failedThirdPartyTransaction(ThirdPartyAccount account, ThirdPartyTransaction transaction);
-    void transferFundsThirdParty(String hashedKey, ThirdPartyTransactionDTO transactionDTO) throws BalanceOutOfBoundsException;
+    void transferFundsThirdParty(String hashedKey, ThirdPartyTransactionDTO transactionDTO);
     ThirdPartyTransaction convertToThirdPartyTransaction(ThirdPartyTransactionDTO transactionDTO);
     MoneyDTO convertToMoneyDto(Money money);
     String findSecretKey(Account account);

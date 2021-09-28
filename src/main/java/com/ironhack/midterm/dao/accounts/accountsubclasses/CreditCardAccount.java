@@ -4,7 +4,6 @@ import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
-import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

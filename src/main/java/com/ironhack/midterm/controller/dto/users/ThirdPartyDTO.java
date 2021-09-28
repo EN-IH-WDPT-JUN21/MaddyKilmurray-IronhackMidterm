@@ -29,16 +29,13 @@ public class ThirdPartyDTO {
     private String username;
     private String password;
 
-    private Set<Role> roles;
-
     @NotBlank
     private String hashedKey;
 
-    public ThirdPartyDTO(String name, String username, String password, Set<Role> roles, String hashedKey) {
+    public ThirdPartyDTO(String name, String username, String password, String hashedKey) {
         this.name = name;
         this.username = username;
         this.password = password;
-        this.roles = roles;
         this.hashedKey = hashedKey;
     }
 }

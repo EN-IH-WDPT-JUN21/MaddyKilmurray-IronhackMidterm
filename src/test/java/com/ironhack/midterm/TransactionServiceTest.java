@@ -8,7 +8,6 @@ import com.ironhack.midterm.dao.users.Role;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
-import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import com.ironhack.midterm.repository.accounts.*;
 import com.ironhack.midterm.repository.users.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,7 +72,7 @@ public class TransactionServiceTest {
     private Address address2;
 
     @BeforeEach
-    public void setUp() throws BalanceOutOfBoundsException {
+    public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");

@@ -5,7 +5,6 @@ import com.ironhack.midterm.controller.dto.accounts.CheckingAccountDTO;
 import com.ironhack.midterm.controller.dto.accounts.CreditCardAccountDTO;
 import com.ironhack.midterm.controller.dto.accounts.SavingsAccountDTO;
 import com.ironhack.midterm.controller.dto.accounts.ThirdPartyAccountDTO;
-import com.ironhack.midterm.controller.dto.users.AdminDTO;
 import com.ironhack.midterm.dao.Address;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
@@ -13,7 +12,6 @@ import com.ironhack.midterm.dao.accounts.accountsubclasses.*;
 import com.ironhack.midterm.dao.users.Role;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
-import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
 import com.ironhack.midterm.repository.accounts.ThirdPartyAccountRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
@@ -76,7 +74,7 @@ public class AccountControllerTest {
     private Address address2;
 
     @BeforeEach
-    public void setUp() throws BalanceOutOfBoundsException {
+    public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");

@@ -1,4 +1,4 @@
-package com.ironhack.midterm.controller.dto;
+package com.ironhack.midterm.controller.dto.transactions;
 
 import com.ironhack.midterm.dao.accounts.Account;
 import lombok.AllArgsConstructor;

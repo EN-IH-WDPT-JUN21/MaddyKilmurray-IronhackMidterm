@@ -3,7 +3,7 @@ package com.ironhack.midterm.dao.accounts;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ironhack.midterm.dao.Constants;
 import com.ironhack.midterm.dao.Money;
-import com.ironhack.midterm.dao.Transaction;
+import com.ironhack.midterm.dao.transactions.Transaction;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.enums.Status;
 import lombok.AllArgsConstructor;

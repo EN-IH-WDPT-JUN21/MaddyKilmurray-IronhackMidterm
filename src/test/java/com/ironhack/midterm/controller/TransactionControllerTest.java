@@ -3,23 +3,18 @@ package com.ironhack.midterm.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.ironhack.midterm.controller.dto.ThirdPartyTransactionDTO;
-import com.ironhack.midterm.controller.dto.TransactionDTO;
+import com.ironhack.midterm.controller.dto.transactions.ThirdPartyTransactionDTO;
+import com.ironhack.midterm.controller.dto.transactions.TransactionDTO;
 import com.ironhack.midterm.dao.Address;
 import com.ironhack.midterm.dao.Money;
 import com.ironhack.midterm.dao.accounts.Account;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.*;
 import com.ironhack.midterm.dao.users.Role;
-import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
-import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
-import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
 import com.ironhack.midterm.repository.accounts.ThirdPartyAccountRepository;
-import com.ironhack.midterm.repository.users.ThirdPartyRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
-import org.hibernate.annotations.Check;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -78,7 +73,7 @@ public class TransactionControllerTest {
     private Address address2;
 
     @BeforeEach
-    public void setUp() throws BalanceOutOfBoundsException {
+    public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");
