@@ -12,6 +12,7 @@ import com.ironhack.midterm.dao.accounts.accountsubclasses.*;
 import com.ironhack.midterm.dao.users.Role;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
+import com.ironhack.midterm.enums.Status;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
 import com.ironhack.midterm.repository.accounts.ThirdPartyAccountRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
@@ -34,9 +35,11 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.HashSet;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -269,5 +272,31 @@ public class AccountControllerTest {
         ).andExpect(status().isCreated()).andReturn();
 
         assertTrue(result.getResponse().getContentAsString().contains("425.00"));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH account status. Update the account's status, FROZEN expected")
+    void AccountController_PatchAccountStatus_FrozenExpected() throws Exception {
+        MvcResult result = mockMvc.perform(
+                patch("/accounts/update/status/" + testCheckingAccount.getId()))
+                .andExpect(status().isAccepted()).andReturn();
+
+        Optional<Account> foundAccount = accountRepository.findById(testCheckingAccount.getId());
+        assertTrue(foundAccount.get().getStatus().equals(Status.FROZEN));
+    }
+
+    @Test
+    @DisplayName("Test: PATCH account status. Update the account's status, ACTIVE expected")
+    void AccountController_PatchAccountStatus_ActiveExpected() throws Exception {
+        Optional<Account> foundAccount = accountRepository.findById(testCheckingAccount.getId());
+        foundAccount.get().setStatus(Status.FROZEN);
+        accountRepository.save(foundAccount.get());
+
+        MvcResult result = mockMvc.perform(
+                        patch("/accounts/update/status/" + testCheckingAccount.getId()))
+                .andExpect(status().isAccepted()).andReturn();
+
+        Optional<Account> foundAccountAgain = accountRepository.findById(testCheckingAccount.getId());
+        assertEquals(foundAccountAgain.get().getStatus(),(Status.ACTIVE));
     }
 }

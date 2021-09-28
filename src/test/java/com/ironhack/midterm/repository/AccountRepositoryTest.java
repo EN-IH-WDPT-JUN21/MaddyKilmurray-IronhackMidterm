@@ -47,7 +47,7 @@ public class AccountRepositoryTest {
     @Test
     @DisplayName("Test: findById(). Negative Result")
     public void AccountRepository_FindByIdTest_NegativeResult() {
-        Optional<Account> foundAccount = accountRepository.findById(99);
+        Optional<Account> foundAccount = accountRepository.findById(99999);
         assertFalse(foundAccount.isPresent());
     }
 

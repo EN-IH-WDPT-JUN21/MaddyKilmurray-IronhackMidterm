@@ -1,5 +1,6 @@
 package com.ironhack.midterm.dao.users;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.Admin;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
@@ -26,6 +27,7 @@ public class Role {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User user;
 
     public Role(String roleType) {
