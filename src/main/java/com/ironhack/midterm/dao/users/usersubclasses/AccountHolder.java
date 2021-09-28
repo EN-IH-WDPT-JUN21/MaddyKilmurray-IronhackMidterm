@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.management.relation.RoleResult;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -63,6 +64,7 @@ public class AccountHolder extends User {
         this.primaryAddress = primaryAddress;
         this.mailingAddress = mailingAddress;
         this.accounts = accounts;
+        addRole(new Role("ACCOUNTHOLDER"));
     }
 
     public Boolean isUnder24() {

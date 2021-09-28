@@ -5,6 +5,7 @@ import com.ironhack.midterm.dao.accounts.accountsubclasses.CheckingAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.CreditCardAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.SavingsAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.ThirdPartyAccount;
+import com.ironhack.midterm.enums.Status;
 import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 
 public interface IAccountService {
@@ -12,4 +13,5 @@ public interface IAccountService {
     AccountDTO createNewSavingsAccount(SavingsAccountDTO account);
     AccountDTO createNewCreditCardAccount(CreditCardAccountDTO account);
     ThirdPartyAccountDTO createNewThirdPartyAccount(ThirdPartyAccountDTO account);
+    Status updateStatus(long id);
 }

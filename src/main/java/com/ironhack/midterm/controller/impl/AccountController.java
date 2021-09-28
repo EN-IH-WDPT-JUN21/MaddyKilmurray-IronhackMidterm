@@ -7,10 +7,12 @@ import com.ironhack.midterm.dao.accounts.accountsubclasses.CreditCardAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.SavingsAccount;
 import com.ironhack.midterm.dao.accounts.accountsubclasses.ThirdPartyAccount;
 import com.ironhack.midterm.dao.users.User;
+import com.ironhack.midterm.enums.Status;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
 import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.service.interfaces.IAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,5 +70,11 @@ public class AccountController {
     @ResponseStatus(HttpStatus.CREATED)
     public ThirdPartyAccountDTO createNewAccount(@RequestBody @Valid ThirdPartyAccountDTO account) {
         return accountService.createNewThirdPartyAccount(account);
+    }
+
+    @PatchMapping("/accounts/update/status/{id}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Status updateStatus(@PathVariable("id") long id) {
+        return accountService.updateStatus(id);
     }
 }

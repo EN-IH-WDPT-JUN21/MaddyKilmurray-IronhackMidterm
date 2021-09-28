@@ -10,6 +10,7 @@ import com.ironhack.midterm.dao.accounts.accountsubclasses.ThirdPartyAccount;
 import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.ThirdParty;
+import com.ironhack.midterm.enums.Status;
 import com.ironhack.midterm.exceptions.BalanceOutOfBoundsException;
 import com.ironhack.midterm.repository.accounts.AccountRepository;
 import com.ironhack.midterm.repository.accounts.ThirdPartyAccountRepository;
@@ -19,7 +20,9 @@ import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.service.interfaces.IAccountService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -214,9 +217,32 @@ public class AccountService implements IAccountService {
         return account;
     }
 
-//    public List<Account> findAccountsByUsername(String name) {
-//        List<Account> allAccounts = accountRepository.findAll();
-//
-//
-//    }
+    public Status updateStatus(long id) {
+        Optional<Account> foundAccount = accountRepository.findById(id);
+        if (foundAccount.isPresent()) {
+            if (foundAccount.get().getStatus().equals(Status.FROZEN)) {
+                foundAccount.get().setStatus(Status.ACTIVE);
+            }
+            else {
+                foundAccount.get().setStatus(Status.FROZEN);
+            }
+            accountRepository.save(foundAccount.get());
+            return foundAccount.get().getStatus();
+        }
+        Optional<ThirdPartyAccount> foundThirdParty = thirdPartyAccountRepository.findById(id);
+        if (foundThirdParty.isPresent()) {
+            if (foundThirdParty.get().getStatus().equals(Status.FROZEN)) {
+                foundThirdParty.get().setStatus(Status.ACTIVE);
+            }
+            else {
+                foundThirdParty.get().setStatus(Status.FROZEN);
+            }
+            thirdPartyAccountRepository.save(foundThirdParty.get());
+            return foundThirdParty.get().getStatus();
+        }
+        if (!foundAccount.isPresent() && !foundThirdParty.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account not found. Please try again.");
+        }
+        return null;
+    }
 }

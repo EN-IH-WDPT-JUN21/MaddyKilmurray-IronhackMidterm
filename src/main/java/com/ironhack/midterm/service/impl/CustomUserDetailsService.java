@@ -28,4 +28,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         CustomUserDetails customUserDetails = new CustomUserDetails(aUser.get());
         return customUserDetails;
     }
+
+
 }
