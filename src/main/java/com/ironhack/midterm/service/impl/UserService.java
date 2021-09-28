@@ -3,6 +3,7 @@ package com.ironhack.midterm.service.impl;
 import com.ironhack.midterm.controller.dto.users.AccountHolderDTO;
 import com.ironhack.midterm.controller.dto.users.AdminDTO;
 import com.ironhack.midterm.controller.dto.users.ThirdPartyDTO;
+import com.ironhack.midterm.dao.users.Role;
 import com.ironhack.midterm.dao.users.User;
 import com.ironhack.midterm.dao.users.usersubclasses.AccountHolder;
 import com.ironhack.midterm.dao.users.usersubclasses.Admin;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -40,23 +42,21 @@ public class UserService implements IUserService {
     private ModelMapper modelMapper;
 
     public AdminDTO createNewAdmin(AdminDTO admin) {
-        Admin newUser = new Admin(admin.getName(), admin.getUsername(), admin.getPassword(),
-                admin.getRoles());
+        Admin newUser = new Admin(admin.getName(), admin.getUsername(), admin.getPassword());
         userRepository.save(newUser);
         return convertToAdminDto(newUser);
     }
 
     public AccountHolderDTO createNewAccountHolder(AccountHolderDTO accountHolder) {
         AccountHolder newUser = new AccountHolder(accountHolder.getName(), accountHolder.getUsername(),
-                    accountHolder.getPassword(), accountHolder.getRoles(), accountHolder.getDateOfBirth(), accountHolder.getPrimaryAddress(),
+                    accountHolder.getPassword(), accountHolder.getDateOfBirth(), accountHolder.getPrimaryAddress(),
                     accountHolder.getMailingAddress(), accountHolder.getAccounts());
         userRepository.save(newUser);
         return convertToAccHolderDto(newUser);
     }
 
     public ThirdPartyDTO createNewThirdParty(ThirdPartyDTO thirdParty) {
-        ThirdParty newUser = new ThirdParty(thirdParty.getName(), thirdParty.getUsername(), thirdParty.getPassword(),
-                thirdParty.getRoles(), thirdParty.getHashedKey());
+        ThirdParty newUser = new ThirdParty(thirdParty.getName(), thirdParty.getUsername(), thirdParty.getPassword(), thirdParty.getHashedKey());
         userRepository.save(newUser);
         return convertToThirdPartyDto(newUser);
     }
@@ -103,9 +103,6 @@ public class UserService implements IUserService {
         if (accountHolder.getPassword() != null) {
             foundUser.get().setPassword(accountHolder.getPassword());
         }
-        if (accountHolder.getRoles() != null) {
-            foundUser.get().setRoles(accountHolder.getRoles());
-        }
         if (accountHolder.getAccounts()!=null) {
             (foundUser.get()).setAccounts(accountHolder.getAccounts());
         }
@@ -136,9 +133,6 @@ public class UserService implements IUserService {
         if (thirdParty.getPassword() != null) {
             foundUser.get().setPassword(thirdParty.getPassword());
         }
-        if (thirdParty.getRoles() != null) {
-            foundUser.get().setRoles(thirdParty.getRoles());
-        }
         if (!thirdParty.getHashedKey().isBlank() || !thirdParty.getHashedKey().equals(" ")) {
             foundUser.get().setHashedKey(thirdParty.getHashedKey());
         }
@@ -159,9 +153,6 @@ public class UserService implements IUserService {
         }
         if (admin.getPassword() != null) {
             foundUser.get().setPassword(admin.getPassword());
-        }
-        if (admin.getRoles() != null) {
-            foundUser.get().setRoles(admin.getRoles());
         }
         adminRepository.save(foundUser.get());
         return convertToAdminDto(foundUser.get());

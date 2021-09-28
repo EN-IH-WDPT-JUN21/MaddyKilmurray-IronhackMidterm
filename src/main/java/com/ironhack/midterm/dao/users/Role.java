@@ -32,6 +32,11 @@ public class Role {
         this.roleType = roleType;
     }
 
+    public Role(String roleType,User user) {
+        this.roleType = roleType;
+        this.user = user;
+    }
+
     @Override
     public String toString() {
         return this.roleType;

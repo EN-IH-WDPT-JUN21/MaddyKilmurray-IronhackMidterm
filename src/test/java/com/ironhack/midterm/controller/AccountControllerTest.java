@@ -81,18 +81,18 @@ public class AccountControllerTest {
         address2 = new Address(2,"Short Avenue","Liverpool","L1 8JQ","United Kingdom");
 
         accountHolder = new AccountHolder("Ronda Grimes", "Ronda","gr1mes",
-                new HashSet<Role>(), LocalDate.of(2005, Month.JANUARY, 8),address1,address2,
+                LocalDate.of(2005, Month.JANUARY, 8),address1,address2,
                 new ArrayList<Account>());
         accountHolder2 = new AccountHolder("Barry White", "WhiteB","b@rry",
-                new HashSet<Role>(),LocalDate.of(1960, Month.AUGUST, 30),address1,address2,
+                LocalDate.of(1960, Month.AUGUST, 30),address1,address2,
                 new ArrayList<Account>());
         accountHolder3 = new AccountHolder("Will Smith", "WSmith","sm1th",
-                new HashSet<Role>(),LocalDate.of(1980, Month.MARCH, 16),address1,address2,
+                LocalDate.of(1980, Month.MARCH, 16),address1,address2,
                 new ArrayList<Account>());
         testThirdParty = new ThirdParty("Will Smith", "WSmith","sm1th",
-                new HashSet<Role>(),"###hashedkey###");
+                "###hashedkey###");
         testThirdParty2 = new ThirdParty("Willow Smith", "WSmith2","sm1th2",
-                new HashSet<Role>(),"###hashedkey###");
+                "###hashedkey###");
         userRepository.save(accountHolder);
         userRepository.save(accountHolder2);
         userRepository.save(accountHolder3);

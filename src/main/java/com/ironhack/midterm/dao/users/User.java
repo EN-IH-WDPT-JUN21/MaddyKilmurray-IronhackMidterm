@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -35,11 +36,11 @@ public class User {
     )
     private Set<Role> roles;
 
-    public User(String name, String username, String password, Set<Role> roles) {
+    public User(String name, String username, String password) {
         this.name = name;
         this.username = username;
         this.password = password;
-        this.roles = roles;
+        this.roles = new HashSet<Role>();
     }
 
     public void addRole(Role role) {

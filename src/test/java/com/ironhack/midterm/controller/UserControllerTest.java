@@ -78,14 +78,14 @@ public class UserControllerTest {
         address1 = new Address(55,"Long Street","Manchester","M1 1AD","United Kingdom");
         address2 = new Address(2,"Short Avenue","Liverpool","L1 8JQ","United Kingdom");
 
-        testAdmin = new Admin("Linda Ronstadt","Ronstadt","lind@",new HashSet<Role>());
+        testAdmin = new Admin("Linda Ronstadt","Ronstadt","lind@");
         testAccountHolder1 = new AccountHolder("Ronda Grimes", "Ronda","gr1mes",
-                new HashSet<Role>(),LocalDate.of(2005, Month.JANUARY, 8),address1,address2,
+                LocalDate.of(2005, Month.JANUARY, 8),address1,address2,
                 new ArrayList<Account>());
         testAccountHolder2 = new AccountHolder("Melissa McCarthy", "McCarthy","melmel",
-                new HashSet<Role>(),LocalDate.of(1970, Month.AUGUST, 26),address2,address1,
+                LocalDate.of(1970, Month.AUGUST, 26),address2,address1,
                 new ArrayList<>());
-        testThirdParty = new ThirdParty("Bust-A-Mortgage","mortgage","bust@",new HashSet<Role>(),
+        testThirdParty = new ThirdParty("Bust-A-Mortgage","mortgage","bust@",
                 "banana");
         userRepository.save(testAdmin);
         userRepository.save(testAccountHolder1);

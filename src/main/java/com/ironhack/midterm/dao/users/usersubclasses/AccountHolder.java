@@ -58,13 +58,13 @@ public class AccountHolder extends User {
     )
     private List<Account> accounts;
 
-    public AccountHolder(String name, String username, String password, Set<Role> roles, LocalDate dateOfBirth, Address primaryAddress, Address mailingAddress, List<Account> accounts) {
-        super(name, username, password, roles);
+    public AccountHolder(String name, String username, String password, LocalDate dateOfBirth, Address primaryAddress, Address mailingAddress, List<Account> accounts) {
+        super(name, username, password);
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = primaryAddress;
         this.mailingAddress = mailingAddress;
         this.accounts = accounts;
-        addRole(new Role("ACCOUNTHOLDER"));
+        addRole(new Role("ACCOUNTHOLDER",this));
     }
 
     public Boolean isUnder24() {
