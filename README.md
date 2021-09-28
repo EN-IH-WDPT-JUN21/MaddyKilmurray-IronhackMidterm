@@ -1,36 +1,208 @@
-# MaddyKilmurray-IronhackMidterm
+# Introduction
 
-Data for database: 
+This is an API simulating a banking service. Users can be added, modified and removed, accounts can be created and modified and all services are secured using HTTP.BASIC protocols. 
 
-`INSERT INTO user (dtype,name,password,username,date_of_birth,mailing_city,mailing_country,mailing_house_number,mailing_postcode,mailing_street_name,primary_city,primary_country,primary_house_number,primary_postcode,primary_street_name,hashed_key) VALUES
-('ADMIN','Maddy','1adminPass','admin1',null,null,null,null,null,null,null,null,null,null,null,null),
-('ADMIN','Eddi','2adminPass','admin2',null,null,null,null,null,null,null,null,null,null,null,null),
-('THIRDPARTY','Credit Score Inc','cs1nc','csInc',null,null,null,null,null,null,null,null,null,null,null,'$2a$12$5eSfdMhLPH66VykW75xYreGIoeqNx5pJhcRAyeAT0B8XTGDcZTECC'),
-('THIRDPARTY','Money Checker','checkMon1','checkMon',null,null,null,null,null,null,null,null,null,null,null,'$2a$12$gGIELJ9TTO7TAFHl4RJH6.48Hz98PpIWkmfCGMairQZFKeqAHkVIy'),
-('THIRDPARTY','Mortgages R Us','mortMort','mortRus',null,null,null,null,null,null,null,null,null,null,null,'$2a$12$3v1TILLURdlYrmd8BvO3ROcUEwk6WtgfLE/wWSyOPcMJryff5QOFS'),
-('ACCOUNTHOLDER','Ted Bundy','pumpkinHead','TedBundy','1946-11-24','Burlington','USA','123','6114-6114','Psycho Street',null,null,null,null,null,null),
-('ACCOUNTHOLDER','Jeffry Dahmer','milwaukee','Dahmer','1960-05-21','Milwaukee','USA','123','6114-6114','Monster Avenue',null,null,null,null,null,null),
-('ACCOUNTHOLDER','Aileen Wuornos','pointBl@nk','Aileen','1956-02-29','Rochester','USA','123','6114-6114','Shooter Road','Florida','USA','456','511-45','Shot Court',null),
-('ACCOUNTHOLDER','Charles Manson','cultLeader','Manson','1934-11-12','Cincinnati','USA','123','6114-6114','Brainwash Drive','Bakersfield','USA','999','511-45','Shot Court',null),
-('ACCOUNTHOLDER','John Wayne Gacy','clown','KillerClown','1942-03-17','Chicago','USA','123','6114-6114','Pogo parade','Crest Hill','USA','999','511-45','Stateville',null),
-('ACCOUNTHOLDER','Jack The Ripper','ripper','Jack','1888-06-06','London','UK','123','6114-6114','Whitechapel Lane','London','UK','999','511-45','Spitalfields Spur',null),
-('ACCOUNTHOLDER','Andrei Chikatilo','butcher','Rostov','1936-10-16','Yabluchne','Ukraine','123','6114-6114','Red Ripper Road','Novocherkassk','Russia','999','511-45','Chikatilo Chase',null),
-('ACCOUNTHOLDER','Ed Gein','ghoul','PlainfieldGhoul','1906-08-27','La Crosse','USA','123','6114-6114','Snatcher street','Madison','USA','999','511-45','Mendota',null),
-('ACCOUNTHOLDER','Babe Ruth','ruth','BRuth','2005-08-27','La Crosse','USA','123','6114-6114','Ruth street','Madison','USA','999','511-45','Mendota',null);`
 
-`INSERT INTO account (ACCOUNT_TYPE,BALANCE,BALANCE_CURRENCY,CREATION_DATE,PENALTY_FEE,PENALTY_FEE_CURRENCY,STATUS,MINIMUM_BALANCE,MINIMUM_BALANCE_CURRENCY,MONTHLY_MAINTENANCE_FEE,MAINTENANCE_FEE_CURRENCY,SECRET_KEY,CREDIT_LIMIT,CREDIT_LIMIT_CURRENCY,INTEREST_RATE,INTEREST_RATE_CURRENCY,HASHED_KEY,NAME,PRIMARY_OWNER_ID,SECONDARY_OWNER_ID) VALUES 
-('CHECKING','50','GBP','2021-06-01','40','GBP','ACTIVE','250','GBP','12','GBP','BERRY','0','GBP','0','GBP','null','null','6','13'), 
-('CHECKING','18000','GBP','1998-12-13','40','GBP','ACTIVE','250','GBP','12','GBP','BANANA','0','GBP','0','GBP','null','null','7','12'), 
-('CHECKING','2000','GBP','2001-05-30','40','GBP','ACTIVE','250','GBP','12','GBP','CHERRY','0','GBP','0','GBP','null','null','8','11'), 
-('STUDENTCHECKING','5','GBP','2021-06-01','40','GBP','ACTIVE','0','GBP','0','GBP','KIWI','0','GBP','0','GBP','null','null','9','10'), 
-('STUDENTCHECKING','200','GBP','1998-12-13','40','GBP','ACTIVE','0','GBP','0','GBP','PAPAYA','0','GBP','0','GBP','null','null','10','9'), 
-('STUDENTCHECKING','999','GBP','2001-05-30','40','GBP','ACTIVE','0','GBP','0','GBP','PINEAPPLE','0','GBP','0','GBP','null','null','11','8'), 
-('CREDITCARD','100','GBP','2021-06-01','40','GBP','ACTIVE','0','GBP','0','GBP','MANGO','100','GBP','0','GBP','null','null','12','7'), 
-('CREDITCARD','10000','GBP','1998-12-13','40','GBP','ACTIVE','0','GBP','0','GBP','APPLE','8000','GBP','0','GBP','null','null','13','6'), 
-('CREDITCARD','555555','GBP','2001-05-30','40','GBP','ACTIVE','0','GBP','0','GBP','CLEMENTINE','100000','GBP','0','GBP','null','null','6','13'), 
-('SAVINGS','100','GBP','2021-06-01','40','GBP','ACTIVE','1000','GBP','0','GBP','ORANGE','0','GBP','0.15','GBP','null','null','7','12'), 
-('SAVINGS','50000','GBP','1998-12-13','40','GBP','ACTIVE','1000','GBP','0','GBP','GRAPE','0','GBP','0.2','GBP','null','null','8','11'), 
-('SAVINGS','8000','GBP','2001-05-30','40','GBP','ACTIVE','1000','GBP','0','GBP','TOMATO','0','GBP','0.1','GBP','null','null','9','10'), 
-('THIRDPARTY','100','GBP','2021-06-01','40','GBP','ACTIVE','0','GBP','0','GBP','null','0','GBP','0','GBP','$2a$12$5L/mzgG42FemI5yAWk9aEepxwrHKGMXQ9XwxumqkT8uglJuEZ9Vv.','Credit Score Inc','12','13'), 
-('THIRDPARTY','500','GBP','1998-12-13','40','GBP','ACTIVE','0','GBP','0','GBP','null','0','GBP','0','GBP','$2a$12$CbUD31J3hhtmsg/eJUVjD.YLzcDv9xSEkmwVBXv/R20age9xCx4hq','Money Checker','11','12'), 
-('THIRDPARTY','800','GBP','2001-05-30','40','GBP','ACTIVE','0','GBP','0','GBP','null','0','GBP','0','GBP','$2a$12$SkWl6oche6lu2rvaZpC/Xe/6ttuxxxJx9XKWQ4MBu72oTYNdTHxz6','Mortgages R Us','10','12');`
+
+### Installation
+
+Clone or download the project from this git repository.
+
+The database is set up as a H2 database and the password to access is:
+
+**Username**: sysadmin, **Password**: 5y5@m1n
+
+Open and run in your preferred IDE.
+
+
+
+### Setup
+
+In order to set up the database, it's best to inject it with some data. Once you have run the project for the first time, log back into H2 and check if the tables have data by running any of the following commands:
+
+```
+SELECT * FROM user;
+SELECT * FROM role; 
+SELECT * FROM account; 
+SELECT * FROM third_party_account;
+SELECT * FROM transaction;
+```
+
+If there is no data, please find some data samples at the bottom of this README.md
+
+
+
+### Pathways
+
+#### **User Pathways**
+
+| Route Type | Route                            | Access Roles                     | Input Required                                       |
+| ---------- | -------------------------------- | -------------------------------- | ---------------------------------------------------- |
+| GET        | /users                           | ADMIN                            | NONE                                                 |
+| GET        | /users/{username}                | ADMIN, ACCOUNTHOLDER, THIRDPARTY | String - Username                                    |
+| GET        | /users/byid/{id}                 | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User ID                                       |
+| POST       | /users/new/admin                 | ADMIN                            | UserDTO                                              |
+| POST       | /users/new/accountholder         | ADMIN                            | UserDTO                                              |
+| POST       | /users/new/thirdparty            | ADMIN                            | UserDTO                                              |
+| PATCH      | /users/update/logindetails/{id}  | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User ID, String - Username, String - Password |
+| PATCH      | /users/update/username/{id}      | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User Id, String - Username                    |
+| PATCH      | /users/update/password/{id}      | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User Id, String - Password                    |
+| PATCH      | /users/update/accountholder/{id} | ADMIN, ACCOUNTHOLDER             | Long - User ID, AccountHolderDTO                     |
+| PATCH      | /users/update/thirdparty/{id}    | ADMIN, THIRDPARTY                | Long - User ID, ThirdPartyDTO                        |
+| PATCH      | /users/update/admin/{id}         | ADMIN                            | Long - User ID, AdminDTO                             |
+| DELETE     | /users/remove/{id}               | ADMIN                            | Long - User ID                                       |
+
+
+
+#### **Account Pathways**
+
+| Route Type | Route                                             | Access Roles                     | Input Required                                     |
+| ---------- | ------------------------------------------------- | -------------------------------- | -------------------------------------------------- |
+| GET        | /accounts                                         | ADMIN                            | NONE                                               |
+| GET        | /accounts/byid/{id}                               | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - Account ID                                  |
+| POST       | /accounts/new/checking                            | ADMIN                            | CheckingAccountDTO                                 |
+| POST       | /accounts/new/savings                             | ADMIN                            | SavingsAccountDTO                                  |
+| POST       | /accounts/new/creditcard                          | ADMIN                            | CreditCardAccountDTO                               |
+| POST       | /accounts/new/thirdparty                          | ADMIN                            | ThirdPartyAccountDTO                               |
+| PATCH      | /accounts/update/status/{id}                      | ADMIN                            | Long - Account ID                                  |
+| GET        | /accounts/getbalance/checking/{account_id}        | ADMIN, ACCOUNTHOLDER             | Long - Account ID, String - Account Owner Username |
+| GET        | /accounts/getbalance/studentchecking/{account_id} | ADMIN, ACCOUNTHOLDER             | Long - Account ID, String - Account Owner Username |
+| GET        | /accounts/getbalance/savings/{account_id}         | ADMIN, ACCOUNTHOLDER             | Long - Account ID, String - Account Owner Username |
+| GET        | /accounts/getbalance/creditcard/{account_id}      | ADMIN, ACCOUNTHOLDER             | Long - Account ID, String - Account Owner Username |
+| GET        | /accounts/getbalance/thirdparty/{account_id}      | ADMIN, THIRDPARTY                | Long - Account ID, String - Account Owner Username |
+| PATCH      | /accounts/admin/transferfunds/                    | ADMIN                            | TransactionDTO                                     |
+| PATCH      | /accounts/accountholder/transferfunds/{username}  | ADMIN, ACCOUNTHOLDER             | String - Username, TransactionDTO                  |
+| PATCH      | /accounts/thirdparty/transferfunds/               | ADMIN, THIRDPARTY                | String - HashedKey, ThirdPartyTransactionDTO       |
+
+
+
+### **DTO Templates**
+
+*Please note: In all DTOs, any reference to secondary owner is optional, and can be removed if not required*
+
+#### Accounts:
+
+##### AccountDTO:
+
+`{`
+`"balance": {"amount":"NUMBER",`
+					`"currency":"GBP"},`
+`"primaryOwnerId":"USERID",`
+`"secondaryOwnerId":"USERID"`
+`}`
+
+##### CheckingAccountDTO:
+
+`{`
+`"balance": {"amount":"NUMBER",`
+					`"currency":"GBP"},`
+`"primaryOwnerId":"USERID",`
+`"secondaryOwnerId":"USERID"`
+`"secretKey":"STRING"`
+`}`
+
+##### CreditCardAccountDTO
+
+`{`
+`"balance": {"amount":"NUMBER",`
+					`"currency":"GBP"},`
+`"primaryOwnerId":"USERID",`
+`"secondaryOwnerId":"USERID"`
+`"creditLimit": {"amount":"NUMBER",`
+							`"currency":"GBP"},`
+`"interestRate": {"amount":"NUMBER",`
+							`"currency":"GBP"}`
+`}`
+
+##### SavingsAccountDTO
+
+`{`
+`"balance": {"amount":"NUMBER",`
+					`"currency":"GBP"},`
+`"primaryOwnerId":"USERID",`
+`"secondaryOwnerId":"USERID"`
+`"secretKey":"STRING"`,
+`"interestRate": {"amount":"NUMBER",`
+							`"currency":"GBP"}``
+``}`
+
+##### ThirdPartyAccountDTO
+
+`{`
+`"balance": {"amount":"NUMBER",`
+					`"currency":"GBP"},`
+`"primaryOwnerId":"USERID",`
+`"secondaryOwnerId":"USERID"`
+`"hashedKey":"STRING"`,
+`"name":"STRING"`
+``}`
+
+
+
+#### Transactions
+
+##### TransactionDTO
+
+`{`
+`"transactionAmount":"NUMBER",`
+`"transferAccountId":"ACCOUNTID",`
+`"receivingAccountId":"ACCOUNTID"`
+`}`
+
+##### ThirdPartyTransactionDTO
+
+`{`
+`"transactionAmount":"NUMBER",`
+`"transferAccountId":"ACCOUNTID",`
+`"receivingAccountId":"ACCOUNTID"`
+`"receivingSecretKey":"STRING"`
+`}`
+
+
+
+#### Users:
+
+##### AccountHolderDTO
+
+`{`
+`"name":"STRING",`
+`"username":"STRING",`
+`"password":"STRING",`
+`"dateOfBirth":"YYYY-MM-DD",`
+`"primaryAddress": {"houseNumber":"NUMBER",`
+									`"streetName":"STRING",`
+									`"city":"STRING",`
+									`"postcode":"STRING",`
+									`"country":"STRING"},`
+
+`"mailingAddress": {"houseNumber":"NUMBER",`
+									`"streetName":"STRING",`
+									`"city":"STRING",`
+									`"postcode":"STRING",`
+									`"country":"STRING"},`
+`"accounts": {"id":"NUMBER",`
+					`"balance": {"amount":"NUMBER",`
+					`"currency":"GBP"},`
+					`"primaryOwnerId":"USERID",`
+					`"secondaryOwnerId":"USERID"}`
+`}`
+
+##### AdminDTO
+
+`{`
+`"name":"STRING",`
+`"username":"STRING",`
+`"password":"STRING",`
+`}`
+
+##### ThirdPartyDTO
+
+`{`
+`"name":"STRING",`
+`"username":"STRING",`
+`"password":"STRING",`
+`"secretKey":"STRING"`
+`}`
+
+
+
