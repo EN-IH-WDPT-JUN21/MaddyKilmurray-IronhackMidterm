@@ -18,18 +18,13 @@ Open and run in your preferred IDE.
 
 ### Setup
 
-In order to set up the database, it's best to inject it with some data. Once you have run the project for the first time, log back into H2 and check if the tables have data by running any of the following commands:
+The API is set up with the following users as default: 
 
-```
-SELECT * FROM user;
-SELECT * FROM role; 
-SELECT * FROM account; 
-SELECT * FROM third_party_account;
-SELECT * FROM transaction;
-```
+**Username**: admin1, **Password**: admin1Pass, **Role**: ADMIN
 
-If there is no data, please find some data samples at the bottom of this README.md
+**Username**: accholder1, **Password**: accHolder1Pass, **Role**: ACCOUNTHOLDER
 
+**Username**: thirdparty1, **Password**: thirdparty1Pass, **Role**: THIRDPARTY
 
 
 ### Pathways
