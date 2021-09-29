@@ -36,43 +36,43 @@ If there is no data, please find some data samples at the bottom of this README.
 
 #### **User Pathways**
 
-| Route Type | Route                            | Access Roles                     | Input Required                                       |
-| ---------- | -------------------------------- | -------------------------------- | ---------------------------------------------------- |
-| GET        | /users                           | ADMIN                            | NONE                                                 |
-| GET        | /users/{username}                | ADMIN, ACCOUNTHOLDER, THIRDPARTY | String - Username                                    |
-| GET        | /users/byid/{id}                 | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User ID                                       |
-| POST       | /users/new/admin                 | ADMIN                            | UserDTO                                              |
-| POST       | /users/new/accountholder         | ADMIN                            | UserDTO                                              |
-| POST       | /users/new/thirdparty            | ADMIN                            | UserDTO                                              |
-| PATCH      | /users/update/logindetails/{id}  | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User ID, String - Username, String - Password |
-| PATCH      | /users/update/username/{id}      | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User Id, String - Username                    |
-| PATCH      | /users/update/password/{id}      | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User Id, String - Password                    |
-| PATCH      | /users/update/accountholder/{id} | ADMIN, ACCOUNTHOLDER             | Long - User ID, AccountHolderDTO                     |
-| PATCH      | /users/update/thirdparty/{id}    | ADMIN, THIRDPARTY                | Long - User ID, ThirdPartyDTO                        |
-| PATCH      | /users/update/admin/{id}         | ADMIN                            | Long - User ID, AdminDTO                             |
-| DELETE     | /users/remove/{id}               | ADMIN                            | Long - User ID                                       |
+Route Type | Route | Access Roles| Input Required 
+--- | --- | --- |--- 
+GET | /users | ADMIN | NONE 
+GET | /users/{username} | ADMIN, ACCOUNTHOLDER, THIRDPARTY | String - Username 
+GET | /users/byid/{id} | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User ID 
+POST | /users/new/admin | ADMIN | AdminDTO 
+POST | /users/new/accountholder | ADMIN | AccountHolderDTO 
+POST | /users/new/thirdparty | ADMIN | ThirdPartyDTO 
+PATCH | /users/update/logindetails/{id} | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User ID, String - Username, String - Password 
+PATCH | /users/update/username/{id} | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User Id, String - Username 
+PATCH | /users/update/password/{id} | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - User Id, String - Password 
+PATCH | /users/update/accountholder/{id} | ADMIN, ACCOUNTHOLDER | Long - User ID, AccountHolderDTO 
+PATCH | /users/update/thirdparty/{id} | ADMIN, THIRDPARTY | Long - User ID, ThirdPartyDTO 
+PATCH | /users/update/admin/{id} | ADMIN | Long - User ID, AdminDTO 
+DELETE | /users/remove/{id} | ADMIN | Long - User ID 
 
 
 
 #### **Account Pathways**
 
-| Route Type | Route                                             | Access Roles                     | Input Required                                     |
-| ---------- | ------------------------------------------------- | -------------------------------- | -------------------------------------------------- |
-| GET        | /accounts                                         | ADMIN                            | NONE                                               |
-| GET        | /accounts/byid/{id}                               | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - Account ID                                  |
-| POST       | /accounts/new/checking                            | ADMIN                            | CheckingAccountDTO                                 |
-| POST       | /accounts/new/savings                             | ADMIN                            | SavingsAccountDTO                                  |
-| POST       | /accounts/new/creditcard                          | ADMIN                            | CreditCardAccountDTO                               |
-| POST       | /accounts/new/thirdparty                          | ADMIN                            | ThirdPartyAccountDTO                               |
-| PATCH      | /accounts/update/status/{id}                      | ADMIN                            | Long - Account ID                                  |
-| GET        | /accounts/getbalance/checking/{account_id}        | ADMIN, ACCOUNTHOLDER             | Long - Account ID, String - Account Owner Username |
-| GET        | /accounts/getbalance/studentchecking/{account_id} | ADMIN, ACCOUNTHOLDER             | Long - Account ID, String - Account Owner Username |
-| GET        | /accounts/getbalance/savings/{account_id}         | ADMIN, ACCOUNTHOLDER             | Long - Account ID, String - Account Owner Username |
-| GET        | /accounts/getbalance/creditcard/{account_id}      | ADMIN, ACCOUNTHOLDER             | Long - Account ID, String - Account Owner Username |
-| GET        | /accounts/getbalance/thirdparty/{account_id}      | ADMIN, THIRDPARTY                | Long - Account ID, String - Account Owner Username |
-| PATCH      | /accounts/admin/transferfunds/                    | ADMIN                            | TransactionDTO                                     |
-| PATCH      | /accounts/accountholder/transferfunds/{username}  | ADMIN, ACCOUNTHOLDER             | String - Username, TransactionDTO                  |
-| PATCH      | /accounts/thirdparty/transferfunds/               | ADMIN, THIRDPARTY                | String - HashedKey, ThirdPartyTransactionDTO       |
+Route Type | Route| Access Roles | Input Required
+--- | --- | --- | --- 
+GET | /accounts | ADMIN | NONE 
+GET | /accounts/byid/{id} | ADMIN, ACCOUNTHOLDER, THIRDPARTY | Long - Account ID 
+POST | /accounts/new/checking | ADMIN | CheckingAccountDTO 
+POST | /accounts/new/savings | ADMIN | SavingsAccountDTO 
+POST | /accounts/new/creditcard | ADMIN | CreditCardAccountDTO 
+POST | /accounts/new/thirdparty | ADMIN | ThirdPartyAccountDTO 
+PATCH | /accounts/update/status/{id} | ADMIN | Long - Account ID 
+GET | /accounts/getbalance/checking/{account_id} | ADMIN, ACCOUNTHOLDER | Long - Account ID, String - Account Owner Username 
+GET | /accounts/getbalance/studentchecking/{account_id} | ADMIN, ACCOUNTHOLDER | Long - Account ID, String - Account Owner Username 
+GET | /accounts/getbalance/savings/{account_id} | ADMIN, ACCOUNTHOLDER | Long - Account ID, String - Account Owner Username 
+GET | /accounts/getbalance/creditcard/{account_id} | ADMIN, ACCOUNTHOLDER | Long - Account ID, String - Account Owner Username 
+GET | /accounts/getbalance/thirdparty/{account_id} | ADMIN, THIRDPARTY | Long - Account ID, String - Account Owner Username 
+PATCH | /accounts/admin/transferfunds/ | ADMIN | TransactionDTO 
+PATCH | /accounts/accountholder/transferfunds/{username} | ADMIN, ACCOUNTHOLDER | String - Username, TransactionDTO 
+PATCH | /accounts/thirdparty/transferfunds/ | ADMIN, THIRDPARTY | String - HashedKey, ThirdPartyTransactionDTO 
 
 
 
@@ -203,5 +203,6 @@ If there is no data, please find some data samples at the bottom of this README.
 `"password":"STRING",`
 `"secretKey":"STRING"`
 `}`
+
 
 

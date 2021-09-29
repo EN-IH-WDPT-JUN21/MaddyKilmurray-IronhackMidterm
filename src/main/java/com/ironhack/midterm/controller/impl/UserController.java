@@ -10,7 +10,6 @@ import com.ironhack.midterm.repository.users.UserRepository;
 import com.ironhack.midterm.service.interfaces.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

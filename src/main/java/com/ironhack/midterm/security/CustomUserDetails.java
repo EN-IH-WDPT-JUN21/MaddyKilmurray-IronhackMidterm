@@ -2,14 +2,21 @@ package com.ironhack.midterm.security;
 
 import com.ironhack.midterm.dao.users.Role;
 import com.ironhack.midterm.dao.users.User;
+import com.ironhack.midterm.repository.users.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 
 public class CustomUserDetails implements UserDetails {
+
+    @Autowired
+    private UserRepository userRepository;
 
     private User user;
 
@@ -43,7 +50,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
